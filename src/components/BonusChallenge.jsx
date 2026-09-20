@@ -1,15 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { categoryIntro } from '../data/introData';
 import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
+
+/* ===== HTML Preview for bonus ===== */
+function HTMLBonusPreview({ code }) {
+  const isFullDoc = code.toLowerCase().includes('<!doctype') || code.toLowerCase().includes('<html');
+  const srcDoc = isFullDoc
+    ? code
+    : `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        margin: 16px;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #111;
+        background: #ffffff;
+      }
+      h1 { font-size: 2em; margin: 0.2em 0; }
+      h2 { font-size: 1.5em; margin: 0.2em 0; }
+      h3 { font-size: 1.2em; }
+      p  { margin: 0.4em 0; }
+      button { padding: 6px 14px; cursor: pointer; font-size: 14px; }
+      a  { color: #0066cc; }
+      img { max-width: 100%; }
+    </style>
+  </head>
+  <body>${code || '<p style="color:#888; font-style:italic;">Ketik kode HTML di sebelah kiri untuk melihat hasil di sini...</p>'}</body>
+</html>`;
+
+  return (
+    <iframe
+      title="html-bonus-preview"
+      srcDoc={srcDoc}
+      style={{ width: '100%', minHeight: '160px', border: 'none', display: 'block', background: 'white' }}
+      sandbox="allow-scripts"
+    />
+  );
+}
 
 /* ===== CSS Preview for bonus ===== */
 function CSSBonusPreview({ code }) {
   const srcDoc = `
+    <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
         <style>
-          body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 120px; background: #111827; font-family: Arial, sans-serif; }
-          .box { font-size: 18px; font-weight: bold; padding: 16px 32px; ${code} }
+          body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 160px; background: #111827; font-family: Arial, sans-serif; }
+          .box { font-size: 18px; font-weight: bold; padding: 16px 32px; transition: all 0.3s ease; ${code} }
         </style>
       </head>
       <body><div class="box">HELLO PIXEL — Desain Bebas!</div></body>
@@ -19,8 +60,59 @@ function CSSBonusPreview({ code }) {
     <iframe
       title="css-bonus-preview"
       srcDoc={srcDoc}
-      style={{ width: '100%', minHeight: '120px', border: 'none', display: 'block', background: 'white' }}
+      style={{ width: '100%', minHeight: '160px', border: 'none', display: 'block', background: '#111827' }}
       sandbox="allow-scripts"
+    />
+  );
+}
+
+/* ===== JS Preview for bonus ===== */
+function JSBonusPreview({ code, runKey }) {
+  const srcDoc = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body { margin: 0; padding: 12px; background: #0d0d1a; font-family: 'Courier New', monospace; font-size: 13px; color: #63f5a8; }
+      .log-line { padding: 3px 0; border-bottom: 1px solid #1a1a2e; word-break: break-all; }
+      .log-line.error { color: #ff667d; }
+      .empty-hint { color: #555; font-style: italic; }
+    </style>
+  </head>
+  <body>
+    <div id="output">
+      ${!code.trim() ? '<div class="empty-hint">&gt; Ketik kode JavaScript di sebelah kiri lalu klik JALANKAN JS...</div>' : ''}
+    </div>
+    <script>
+      var out = document.getElementById('output');
+      var origLog = console.log;
+      console.log = function() {
+        var args = Array.prototype.slice.call(arguments);
+        var line = document.createElement('div');
+        line.className = 'log-line';
+        line.textContent = '> ' + args.join(' ');
+        out.appendChild(line);
+        origLog.apply(console, args);
+      };
+      try {
+        ${code}
+      } catch(e) {
+        var errLine = document.createElement('div');
+        errLine.className = 'log-line error';
+        errLine.textContent = 'Error: ' + e.message;
+        out.appendChild(errLine);
+      }
+    <\/script>
+  </body>
+</html>`;
+
+  return (
+    <iframe
+      key={runKey}
+      title="js-bonus-preview"
+      srcDoc={srcDoc}
+      style={{ minHeight: '160px', width: '100%', border: 'none', display: 'block', background: '#0d0d1a' }}
+      sandbox="allow-scripts allow-modals"
     />
   );
 }
@@ -29,9 +121,12 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   const intro = categoryIntro[category];
   const bonusKey = `${category}-bonus`;
   const isAlreadyCompleted = completedLessons.includes(bonusKey);
-  const [code, setCode] = useState(intro.bonusPlaceholder || '');
+
+  // Mulai kosong agar pengguna bisa mengetik sendiri dari awal
+  const [code, setCode] = useState('');
   const [submitted, setSubmitted] = useState(isAlreadyCompleted);
   const [error, setError] = useState('');
+  const [runKey, setRunKey] = useState(0);
 
   const catColor = intro.color;
   const lines = code.split('\n');
@@ -51,14 +146,22 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
     }
   };
 
+  function handleRun() {
+    if (soundEnabled) soundRun();
+    setRunKey((k) => k + 1);
+  }
+
   function handleSubmit() {
     if (soundEnabled) soundRun();
     const trimmed = code.replace(/\s+/g, '').replace(/<!--.*?-->/g, '').replace(/\/\*.*?\*\//g, '');
-    if (trimmed.length < (intro.bonusMinLength || 15)) {
-      setError('Kodenya terlalu pendek! Coba tambahkan lebih banyak konten.');
+    if (trimmed.length < 5) {
+      setError('Ketik kodemu terlebih dahulu sebelum submit!');
       return;
     }
     setError('');
+    if (category === 'javascript') {
+      setRunKey((k) => k + 1);
+    }
     if (soundEnabled) setTimeout(() => soundSuccess(), 200);
     setSubmitted(true);
     onComplete(bonusKey);
@@ -67,7 +170,7 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   function handleReset() {
     if (soundEnabled) soundClick();
     setSubmitted(false);
-    setCode(intro.bonusPlaceholder || '');
+    setCode('');
     setError('');
   }
 
@@ -101,49 +204,43 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
         </div>
       </div>
 
-      {/* Title Banner */}
-      <div className="bonus-banner" style={{ borderColor: catColor, background: `${catColor}15` }}>
-        <div className="bonus-star-row">
-          <span style={{ color: catColor }}>★ ★ ★</span>
-          <span className="bonus-tag" style={{ color: catColor, borderColor: catColor }}>TUGAS TAMBAHAN</span>
-          <span style={{ color: catColor }}>★ ★ ★</span>
+      {/* Hero */}
+      <div className="bonus-hero" style={{ borderColor: catColor }}>
+        <div className="bonus-badge" style={{ background: catColor, color: '#080C16' }}>
+          ★ {intro.bonusTitle}
         </div>
-        <h1 className="bonus-title" style={{ color: catColor }}>
-          {intro.bonusTitle}
-        </h1>
-        <p className="bonus-instruction">
-          {intro.bonusInstruction}
+        <h2 className="bonus-title">{intro.bonusTitle}</h2>
+        <p className="bonus-instruction">{intro.bonusInstruction}</p>
+        <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', marginTop: '8px' }}>
+          💡 Editor di bawah sengaja dikosongkan. Silakan berkreasi dan ketik kodemu sendiri sesuka hati!
         </p>
       </div>
 
-      {/* Success State */}
+      {/* Completed Banner */}
       {submitted && (
-        <div className="bonus-success-box">
-          <div className="bonus-success-icon">🏆</div>
-          <h2 style={{ color: 'var(--color-green)', fontSize: '14px', marginBottom: '8px' }}>
-            TUGAS SELESAI!
-          </h2>
-          <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', lineHeight: 2, marginBottom: '16px' }}>
+        <div className="bonus-completed-banner">
+          <span style={{ fontSize: '18px' }}>🎉</span>
+          <div>
+            <strong>KARYA BEBAS BERHASIL DIKUMPULKAN!</strong><br />
             Hebat! Kamu telah berhasil menyelesaikan tugas bebas {category.toUpperCase()}.<br />
-            Karya kode kamu telah menjadi kenyataan.
-          </p>
-          <p style={{ fontSize: '8px', color: 'var(--color-blue)', letterSpacing: '2px', marginBottom: '20px' }}>
-            ✦ Your code has become reality. ✦
-          </p>
-          <button className="btn btn-ghost" onClick={handleReset}>
-            ✎ EDIT ULANG
+            <span style={{ fontSize: '7px', color: 'var(--color-gray-light)' }}>
+              Kamu bisa terus mengedit dan menekan Reset jika ingin membuat karya baru.
+            </span>
+          </div>
+          <button className="btn btn-secondary" onClick={handleReset} style={{ marginLeft: 'auto', fontSize: '8px' }}>
+            RESET / BUAT BARU
           </button>
         </div>
       )}
 
-      {/* Editor + Preview layout */}
-      <div className="lesson-layout" style={{ marginTop: '20px' }}>
+      {/* Main split */}
+      <div className="lesson-workspace">
         {/* Left: Editor */}
-        <div>
-          <div className="editor-panel" style={{ borderColor: catColor }}>
+        <div className="editor-panel">
+          <div className="pixel-card-inner">
             <div className="editor-header">
-              <span className="editor-title" style={{ color: catColor }}>
-                CODE EDITOR — {category.toUpperCase()}
+              <span className="editor-title">
+                {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : 'script.js'}
               </span>
               <div className="editor-dots">
                 <div className="editor-dot red" />
@@ -185,19 +282,29 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                   ✕ {error}
                 </span>
               )}
-              {!submitted ? (
-                <button
-                  className="btn-run btn"
-                  onClick={handleSubmit}
-                  style={{ marginLeft: 'auto' }}
-                >
-                  ▶ SUBMIT TUGAS
-                </button>
-              ) : (
-                <span style={{ fontSize: '8px', color: 'var(--color-green)', marginLeft: 'auto' }}>
-                  ✓ TUGAS DIKUMPULKAN
-                </span>
-              )}
+              <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+                {category === 'javascript' && (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleRun}
+                    style={{ fontSize: '8px', padding: '6px 12px' }}
+                  >
+                    ▶ JALANKAN JS
+                  </button>
+                )}
+                {!submitted ? (
+                  <button
+                    className="btn-run btn"
+                    onClick={handleSubmit}
+                  >
+                    ✓ SUBMIT TUGAS
+                  </button>
+                ) : (
+                  <span style={{ fontSize: '8px', color: 'var(--color-green)', alignSelf: 'center' }}>
+                    ✓ TUGAS DIKUMPULKAN
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -212,10 +319,7 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
 
             {/* HTML Preview */}
             {category === 'html' && (
-              <div
-                className="preview-body"
-                dangerouslySetInnerHTML={{ __html: code }}
-              />
+              <HTMLBonusPreview code={code} />
             )}
 
             {/* CSS Preview */}
@@ -225,27 +329,7 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
 
             {/* JS Preview */}
             {category === 'javascript' && (
-              <div style={{ padding: '16px', background: '#0d0d1a', minHeight: '120px' }}>
-                <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', marginBottom: '12px', lineHeight: 2 }}>
-                  📝 Kode JavaScript-mu akan divalidasi secara teks.<br />
-                  Pastikan kode sudah sesuai dengan yang kamu inginkan.
-                </p>
-                {code.trim() && (
-                  <pre style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '11px',
-                    color: '#FFD166',
-                    background: '#080C16',
-                    border: '1px solid #333',
-                    padding: '12px',
-                    overflowX: 'auto',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-all',
-                  }}>
-                    {code}
-                  </pre>
-                )}
-              </div>
+              <JSBonusPreview code={code} runKey={runKey} />
             )}
           </div>
 
@@ -275,7 +359,7 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
               <ul className="bonus-tips-list">
                 <li>let / const untuk variable</li>
                 <li>console.log() untuk tampilkan teks</li>
-                <li>alert() untuk popup</li>
+                <li>alert() untuk popup asli browser</li>
                 <li>if (kondisi) {'{ ... }'} untuk kondisi</li>
                 <li>function nama() {'{ ... }'} untuk fungsi</li>
               </ul>

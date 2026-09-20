@@ -6,7 +6,11 @@ import { soundRun, soundSuccess, soundError, soundHint, soundBack, soundClick } 
 
 /* ========= VALIDATION HELPERS ========= */
 function normalizeCode(str) {
-  return str.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+  return str
+    .replace(/\s+/g, '')
+    .replace(/;/g, '')
+    .replace(/['"`]/g, '"')
+    .toLowerCase();
 }
 
 function checkAnswer(code, lesson) {
@@ -20,7 +24,12 @@ function checkAnswer(code, lesson) {
       const el = doc.querySelector(tag);
       if (!el) return false;
       if (text) {
-        return el.textContent.trim().toLowerCase() === text.toLowerCase();
+        const elText = el.textContent.trim().toLowerCase();
+        if (Array.isArray(text)) {
+          return text.some((t) => elText === t.toLowerCase() || elText.includes(t.toLowerCase()));
+        }
+        const target = text.toLowerCase();
+        return elText === target || elText.includes(target);
       }
       return true;
     } catch {
@@ -48,15 +57,32 @@ function checkAnswer(code, lesson) {
     const norm = normalizeCode(code);
     const normProp = normalizeCode(property);
     const normVal = normalizeCode(value);
-    // Check that both property and value appear in proximity
     return norm.includes(normProp + ':' + normVal) || norm.includes(normProp + normVal);
   }
 
   if (checkType === 'js-pattern') {
     const { pattern } = checkConfig;
-    const norm = normalizeCode(code);
-    const normPat = normalizeCode(pattern);
-    return norm.includes(normPat);
+    // Normalisasi quotes, spasi, dan deklarasi variable let/var/const
+    const norm = normalizeCode(code).replace(/\b(var|const)\b/g, 'let');
+    const normPat = normalizeCode(pattern).replace(/\b(var|const)\b/g, 'let');
+
+    if (norm.includes(normPat)) return true;
+
+    // Pengecekan cerdas untuk kondisi if dan function jika ada variasi tanda kurung kurawal {}
+    if (normPat.includes('if(')) {
+      return norm.includes('if(5>3)') && (norm.includes('console.log("benar")') || norm.includes('console.log("benar")'));
+    }
+    if (normPat.includes('functionsapa')) {
+      return norm.includes('functionsapa()') && norm.includes('console.log("halo!")');
+    }
+    if (normPat.includes('hasil=5+3')) {
+      return norm.includes('hasil=5+3');
+    }
+    if (normPat.includes('nama="evan"')) {
+      return norm.includes('nama="evan"');
+    }
+
+    return false;
   }
 
   return false;
