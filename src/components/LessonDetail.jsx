@@ -207,6 +207,7 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
   // runKey: increment setiap klik RUN agar iframe JS di-refresh ulang
   const [runKey, setRunKey] = useState(0);
   const [hasRun, setHasRun] = useState(false);
+  const [mobileTab, setMobileTab] = useState('quest'); // 'quest' | 'editor'
   const lessonList = lessons[category];
   const currentIndex = lessonList.findIndex((l) => l.id === lesson.id);
   const nextLesson = lessonList[currentIndex + 1] || null;
@@ -226,6 +227,7 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
     setCode(lesson.starterCode || '');
     setResult(null);
     setShowHint(false);
+    setMobileTab('quest');
   }, [lesson.id]);
 
   function handleRun() {
@@ -281,9 +283,27 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
         </div>
       </div>
 
-      <div className="lesson-layout">
+      {/* Mobile Tab Switcher untuk mempermudah layar sentuh / HP */}
+      <div className="mobile-lesson-tabs">
+        <button
+          type="button"
+          className={`mobile-tab-btn ${mobileTab === 'quest' ? 'active' : ''}`}
+          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('quest'); }}
+        >
+          📋 MATERI & SOAL
+        </button>
+        <button
+          type="button"
+          className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
+          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('editor'); }}
+        >
+          ⚡ KODING & PREVIEW
+        </button>
+      </div>
+
+      <div className={`lesson-layout mobile-tab-${mobileTab}`}>
         {/* LEFT: Quest Panel */}
-        <div>
+        <div className="lesson-col-quest">
           <div className="quest-panel">
             <div className="quest-panel-header">
               <h2>{info.label} QUEST {String(currentIndex + 1).padStart(2, '0')}</h2>
@@ -318,12 +338,27 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
                 </div>
               </div>
 
+              {/* Tombol khusus Mobile untuk langsung lompat ke tab editor */}
+              <button
+                type="button"
+                className="btn btn-run mobile-start-code-btn"
+                onClick={() => { if (soundEnabled) soundClick(); setMobileTab('editor'); }}
+              >
+                ▶ MULAI KODING SEKARANG →
+              </button>
+
             </div>
           </div>
         </div>
 
         {/* RIGHT: Editor + Preview */}
-        <div>
+        <div className="lesson-col-editor">
+          {/* Pengingat instruksi soal pada tampilan HP */}
+          <div className="mobile-quest-banner">
+            <span className="banner-badge" style={{ background: catColor }}>TARGET</span>
+            <span className="banner-text">{lesson.instruction}</span>
+          </div>
+
           {/* Code Editor */}
           <div className="editor-panel">
             <div className="editor-header">

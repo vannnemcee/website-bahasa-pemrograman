@@ -72,9 +72,9 @@
     linear-gradient(90deg, rgba(37,99,235,0.06) 1px, transparent 1px);
 }
 
-[data-theme='light'] .glow-blue { text-shadow: 0 0 8px rgba(37,99,235,0.4); color: var(--color-blue); }
-[data-theme='light'] .glow-green { text-shadow: 0 0 8px rgba(5,150,105,0.4); color: var(--color-green); }
-[data-theme='light'] .glow-purple { text-shadow: 0 0 8px rgba(109,40,217,0.4); color: var(--color-purple); }
+[data-theme='light'] .glow-blue { text-shadow: none; color: var(--color-blue); }
+[data-theme='light'] .glow-green { text-shadow: none; color: var(--color-green); }
+[data-theme='light'] .glow-purple { text-shadow: none; color: var(--color-purple); }
 
 [data-theme='light'] .editor-textarea {
   background: var(--editor-bg);
@@ -85,8 +85,8 @@
 [data-theme='light'] .editor-line-numbers { background: #161626; border-right-color: #333; }
 [data-theme='light'] .quest-example { background: #1e1e2e; color: #a6e3a1; }
 
-[data-theme='light'] .home-title-main { color: var(--color-blue); text-shadow: 0 0 15px rgba(37,99,235,0.4); }
-[data-theme='light'] .home-title-sub { color: var(--color-purple); text-shadow: 0 0 10px rgba(109,40,217,0.4); }
+[data-theme='light'] .home-title-main { color: var(--color-blue); text-shadow: none; }
+[data-theme='light'] .home-title-sub { color: var(--color-purple); text-shadow: none; }
 [data-theme='light'] .home-eyebrow { color: var(--color-purple); }
 [data-theme='light'] .home-tagline { color: var(--color-yellow); border-color: var(--color-yellow); box-shadow: 3px 3px 0px rgba(217,119,6,0.3); }
 [data-theme='light'] .home-desc { color: var(--color-gray); }
@@ -333,12 +333,12 @@ body::before {
   letter-spacing: 1px;
 }
 
-/* ===== GLOW TEXT ===== */
-.glow-blue { text-shadow: 0 0 10px var(--color-blue), 0 0 20px var(--color-blue); color: var(--color-blue); }
-.glow-green { text-shadow: 0 0 10px var(--color-green), 0 0 20px var(--color-green); color: var(--color-green); }
-.glow-purple { text-shadow: 0 0 10px var(--color-purple), 0 0 20px var(--color-purple); color: var(--color-purple); }
-.glow-yellow { text-shadow: 0 0 10px var(--color-yellow), 0 0 20px var(--color-yellow); color: var(--color-yellow); }
-.glow-red { text-shadow: 0 0 10px var(--color-red), 0 0 20px var(--color-red); color: var(--color-red); }
+/* ===== GLOW TEXT (Halus & Bersih) ===== */
+.glow-blue { color: var(--color-blue); text-shadow: 1px 1px 0px rgba(0,0,0,0.6); }
+.glow-green { color: var(--color-green); text-shadow: 1px 1px 0px rgba(0,0,0,0.6); }
+.glow-purple { color: var(--color-purple); text-shadow: 1px 1px 0px rgba(0,0,0,0.6); }
+.glow-yellow { color: var(--color-yellow); text-shadow: 1px 1px 0px rgba(0,0,0,0.6); }
+.glow-red { color: var(--color-red); text-shadow: 1px 1px 0px rgba(0,0,0,0.6); }
 
 /* ===== HEADER ===== */
 .site-header {
@@ -364,7 +364,7 @@ body::before {
 .header-logo {
   font-size: 10px;
   color: var(--color-blue);
-  text-shadow: 0 0 10px var(--color-blue);
+  text-shadow: none;
   cursor: pointer;
   white-space: nowrap;
   letter-spacing: 1px;
@@ -543,7 +543,7 @@ body::before {
 
 .loading-title-accent {
   color: var(--color-blue);
-  text-shadow: 0 0 20px var(--color-blue), 0 0 40px rgba(76,201,240,0.5);
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
 }
 
 .loading-subtitle {
@@ -667,11 +667,11 @@ body::before {
   50% { opacity: 0.3; }
 }
 
-/* Big title — Razzan-scale */
+/* Big title — Razzan-scale tapi bersih & tidak silau */
 .home-title-main {
   font-size: clamp(28px, 6vw, 64px);
   color: var(--color-blue);
-  text-shadow: 0 0 20px var(--color-blue), 0 0 40px rgba(76,201,240,0.4);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.7);
   line-height: 1.2;
   margin-bottom: 4px;
   display: block;
@@ -685,7 +685,7 @@ body::before {
 .home-title-sub {
   font-size: clamp(22px, 5vw, 52px);
   color: var(--color-purple);
-  text-shadow: 0 0 15px var(--color-purple), 0 0 30px rgba(123,97,255,0.4);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.7);
   display: block;
   text-align: left;
   font-style: italic;
@@ -884,7 +884,7 @@ body::before {
 .screen-title h1 {
   font-size: 14px;
   color: var(--color-blue);
-  text-shadow: 0 0 10px var(--color-blue);
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
   margin-bottom: 12px;
 }
 
@@ -1922,10 +1922,162 @@ body::before {
   color: var(--color-blue);
 }
 
+/* ===== MOBILE SHORTCUTS & TABS BASE ===== */
+.mobile-lesson-tabs {
+  display: none;
+}
+.mobile-start-code-btn {
+  display: none;
+}
+.mobile-quest-banner {
+  display: none;
+}
+.mobile-symbol-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 18, 32, 0.95);
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.symbol-bar-label {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--color-gray-light);
+  white-space: nowrap;
+}
+.symbol-buttons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.symbol-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 8px;
+  min-width: 30px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a2236;
+  color: #fff;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+.symbol-btn:hover {
+  background: var(--color-blue);
+  color: #080C16;
+  border-color: var(--color-blue);
+}
+.symbol-btn:active {
+  transform: scale(0.92);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .lesson-layout {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .lesson-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .mobile-lesson-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: var(--bg-panel);
+    padding: 6px;
+    border: 2px solid var(--border-panel);
+    border-radius: 4px;
+    position: sticky;
+    top: 60px;
+    z-index: 20;
+  }
+
+  .mobile-tab-btn {
+    flex: 1;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    padding: 10px 8px;
+    background: transparent;
+    color: var(--color-gray-light);
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+
+  .mobile-tab-btn.active {
+    background: var(--color-blue);
+    color: var(--bg-main);
+    border-color: var(--color-blue);
+    font-weight: bold;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+  }
+
+  .mobile-start-code-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    text-align: center;
+    font-size: 9px;
+    padding: 12px 16px;
+  }
+
+  .mobile-quest-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(76, 201, 240, 0.12);
+    border: 2px solid var(--color-blue);
+    margin-bottom: 14px;
+    border-radius: 4px;
+  }
+
+  .mobile-quest-banner .banner-badge {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    padding: 3px 6px;
+    color: #080C16;
+    font-weight: bold;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .mobile-quest-banner .banner-text {
+    font-size: 8px;
+    line-height: 1.5;
+    color: var(--color-white);
+  }
+
+  /* Filter tampilan sesuai tab aktif pada HP */
+  .lesson-layout.mobile-tab-quest .lesson-col-editor,
+  .lesson-layout.mobile-tab-quest .lesson-col-preview {
+    display: none !important;
+  }
+
+  .lesson-layout.mobile-tab-editor .lesson-col-quest {
+    display: none !important;
+  }
+
+  .lesson-layout.mobile-tab-preview .lesson-col-editor {
+    display: none !important;
   }
 }
 
@@ -1963,12 +2115,19 @@ body::before {
     display: none;
   }
 
-  .modal-box { padding: 24px 16px; }
+  .modal-box {
+    padding: 24px 16px;
+    max-width: 92vw;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
   .modal-title { font-size: 12px; }
 
-  .editor-textarea { font-size: 12px; }
+  .editor-textarea {
+    font-size: 14px; /* Ukuran pas agar nyaman dibaca dan tidak memicu auto-zoom berlebihan */
+  }
 
-  .quest-example { font-size: 10px; }
+  .quest-example { font-size: 10px; overflow-x: auto; }
 
   .intro-card { padding: 20px 16px; }
   .intro-title { font-size: 14px; }
@@ -1980,4 +2139,6 @@ body::before {
 @media (max-width: 380px) {
   .home-title-main { font-size: 14px; }
   .category-card { padding: 20px 16px; }
+  .header-logo { font-size: 7px; }
+  .header-progress { font-size: 7px; padding: 4px 8px; }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { categoryIntro } from '../data/introData';
 import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
 
@@ -118,6 +118,7 @@ function JSBonusPreview({ code, runKey }) {
 }
 
 function BonusChallenge({ category, onBack, onComplete, completedLessons, soundEnabled }) {
+  const textareaRef = useRef(null);
   const intro = categoryIntro[category];
   const bonusKey = `${category}-bonus`;
   const isAlreadyCompleted = completedLessons.includes(bonusKey);
@@ -127,22 +128,33 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   const [submitted, setSubmitted] = useState(isAlreadyCompleted);
   const [error, setError] = useState('');
   const [runKey, setRunKey] = useState(0);
+  const [mobileTab, setMobileTab] = useState('editor'); // 'editor' | 'preview'
 
   const catColor = intro.color;
   const lines = code.split('\n');
   const lineCount = Math.max(lines.length, 6);
 
+  const insertText = (str) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
+    const newVal = code.substring(0, start) + str + code.substring(end);
+    setCode(newVal);
+    setError('');
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start + str.length;
+      textarea.selectionEnd = start + str.length;
+    }, 0);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const newVal = code.substring(0, start) + '  ' + code.substring(end);
-      setCode(newVal);
-      setTimeout(() => {
-        e.target.selectionStart = start + 2;
-        e.target.selectionEnd = start + 2;
-      }, 0);
+      insertText('  ');
     }
   };
 
@@ -173,6 +185,13 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
     setCode('');
     setError('');
   }
+
+  const mobileSymbols =
+    category === 'html'
+      ? ['<', '>', '/', '=', '"', "'", '!', '-', 'TAB']
+      : category === 'css'
+      ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
+      : ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB'];
 
   return (
     <div className="bonus-screen">
@@ -233,84 +252,123 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
         </div>
       )}
 
+      {/* Mobile Tab Switcher */}
+      <div className="mobile-lesson-tabs">
+        <button
+          type="button"
+          className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
+          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('editor'); }}
+        >
+          💻 EDITOR KODE
+        </button>
+        <button
+          type="button"
+          className={`mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
+          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('preview'); }}
+        >
+          👁️ LIVE PREVIEW & TIPS
+        </button>
+      </div>
+
       {/* Main split */}
-      <div className="lesson-workspace">
+      <div className={`lesson-layout mobile-tab-${mobileTab}`}>
         {/* Left: Editor */}
-        <div className="editor-panel">
-          <div className="pixel-card-inner">
-            <div className="editor-header">
-              <span className="editor-title">
-                {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : 'script.js'}
-              </span>
-              <div className="editor-dots">
-                <div className="editor-dot red" />
-                <div className="editor-dot yellow" />
-                <div className="editor-dot green" />
-              </div>
-            </div>
-
-            {/* Line numbers + textarea */}
-            <div className="editor-body">
-              <div className="editor-line-numbers">
-                {Array.from({ length: lineCount }, (_, i) => (
-                  <div key={i} className="line-number">{i + 1}</div>
-                ))}
-              </div>
-              <textarea
-                className="editor-textarea"
-                value={code}
-                onChange={(e) => { setCode(e.target.value); setError(''); }}
-                onKeyDown={handleKeyDown}
-                spellCheck={false}
-                autoCorrect="off"
-                autoCapitalize="off"
-                rows={Math.max(lineCount, 6)}
-                style={{
-                  color:
-                    category === 'html' ? '#FF8B9A' :
-                    category === 'css' ? '#4CC9F0' :
-                    '#FFD166',
-                }}
-                placeholder={intro.bonusPlaceholder}
-                disabled={submitted}
-              />
-            </div>
-
-            <div className="editor-footer">
-              {error && (
-                <span style={{ fontSize: '7px', color: 'var(--color-red)', flex: 1 }}>
-                  ✕ {error}
+        <div className="lesson-col-editor">
+          <div className="editor-panel">
+            <div className="pixel-card-inner">
+              <div className="editor-header">
+                <span className="editor-title">
+                  {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : 'script.js'}
                 </span>
-              )}
-              <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-                {category === 'javascript' && (
-                  <button
-                    className="btn btn-secondary"
-                    onClick={handleRun}
-                    style={{ fontSize: '8px', padding: '6px 12px' }}
-                  >
-                    ▶ JALANKAN JS
-                  </button>
-                )}
-                {!submitted ? (
-                  <button
-                    className="btn-run btn"
-                    onClick={handleSubmit}
-                  >
-                    ✓ SUBMIT TUGAS
-                  </button>
-                ) : (
-                  <span style={{ fontSize: '8px', color: 'var(--color-green)', alignSelf: 'center' }}>
-                    ✓ TUGAS DIKUMPULKAN
+                <div className="editor-dots">
+                  <div className="editor-dot red" />
+                  <div className="editor-dot yellow" />
+                  <div className="editor-dot green" />
+                </div>
+              </div>
+
+              {/* Shortcut simbol coding untuk HP */}
+              <div className="mobile-symbol-bar">
+                <span className="symbol-bar-label">SHORTCUT:</span>
+                <div className="symbol-buttons">
+                  {mobileSymbols.map((sym) => (
+                    <button
+                      key={sym}
+                      type="button"
+                      className="symbol-btn"
+                      onClick={() => insertText(sym === 'TAB' ? '  ' : sym)}
+                    >
+                      {sym}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Line numbers + textarea */}
+              <div className="editor-body">
+                <div className="editor-line-numbers">
+                  {Array.from({ length: lineCount }, (_, i) => (
+                    <div key={i} className="line-number">{i + 1}</div>
+                  ))}
+                </div>
+                <textarea
+                  ref={textareaRef}
+                  className="editor-textarea"
+                  value={code}
+                  onChange={(e) => { setCode(e.target.value); setError(''); }}
+                  onKeyDown={handleKeyDown}
+                  spellCheck={false}
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  rows={Math.max(lineCount, 6)}
+                  style={{
+                    color:
+                      category === 'html' ? '#FF8B9A' :
+                      category === 'css' ? '#4CC9F0' :
+                      '#FFD166',
+                  }}
+                  placeholder={intro.bonusPlaceholder}
+                  disabled={submitted}
+                />
+              </div>
+
+              <div className="editor-footer">
+                {error && (
+                  <span style={{ fontSize: '7px', color: 'var(--color-red)', flex: 1 }}>
+                    ✕ {error}
                   </span>
                 )}
+                <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+                  {category === 'javascript' && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleRun}
+                      style={{ fontSize: '8px', padding: '6px 12px' }}
+                    >
+                      ▶ JALANKAN JS
+                    </button>
+                  )}
+                  {!submitted ? (
+                    <button
+                      className="btn-run btn"
+                      onClick={handleSubmit}
+                    >
+                      ✓ SUBMIT TUGAS
+                    </button>
+                  ) : (
+                    <span style={{ fontSize: '8px', color: 'var(--color-green)', alignSelf: 'center' }}>
+                      ✓ TUGAS DIKUMPULKAN
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right: Preview */}
-        <div>
+        <div className="lesson-col-preview">
           <div className="preview-panel" style={{ borderColor: catColor, boxShadow: `4px 4px 0px ${intro.colorDark}` }}>
             <div className="preview-header" style={{ background: catColor }}>
               <span className="preview-title">LIVE PREVIEW — KARYA BEBAS</span>
