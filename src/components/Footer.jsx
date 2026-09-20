@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer({
   completedLessons = [],
-  totalLessons = 18,
+  totalLessons = 40,
 }) {
   const totalCompleted = completedLessons.length;
 
@@ -12,7 +12,7 @@ function Footer({
         <div className="footer-modul">
           <span className="footer-modul-icon">▶</span>
           <span className="footer-modul-label">MODUL:</span>
-          <span className="footer-modul-stack">HTML • CSS • JavaScript</span>
+          <span className="footer-modul-stack">HTML • CSS • JavaScript • Python</span>
         </div>
         <div className="footer-quest">
           <span className="footer-quest-label">QUEST: </span>

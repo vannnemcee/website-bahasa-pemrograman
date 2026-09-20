@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { categoryIntro } from '../data/introData';
 import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
+import { runPythonCode } from '../utils/pythonRunner';
 
 /* ===== HTML Preview for bonus ===== */
 function HTMLBonusPreview({ code }) {
@@ -117,6 +118,47 @@ function JSBonusPreview({ code, runKey }) {
   );
 }
 
+/* ===== Python Preview for bonus ===== */
+function PythonBonusPreview({ code, runKey }) {
+  const { output, error } = runPythonCode(code);
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '14px',
+        background: '#09090b',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '140px',
+      }}
+    >
+      <div style={{ color: '#71717a', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
+        $ python3 main.py (Live Terminal)
+      </div>
+      {!code.trim() && (
+        <div style={{ color: '#52525b', fontStyle: 'italic', fontSize: '9px' }}>
+          Ketik kode Python di sebelah kiri lalu klik JALANKAN PYTHON...
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#4ADE80', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          {error}
+        </div>
+      )}
+      {code.trim() && (
+        <div style={{ marginTop: '10px', color: '#52525b', fontSize: '8px' }}>
+          [Program dijalankan dengan sukses]
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BonusChallenge({ category, onBack, onComplete, completedLessons, soundEnabled }) {
   const textareaRef = useRef(null);
   const intro = categoryIntro[category];
@@ -191,7 +233,9 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
       ? ['<', '>', '/', '=', '"', "'", '!', '-', 'TAB']
       : category === 'css'
       ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
-      : ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB'];
+      : category === 'javascript'
+      ? ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB']
+      : ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB'];
 
   return (
     <div className="bonus-screen">
@@ -326,7 +370,8 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                     color:
                       category === 'html' ? '#FF8B9A' :
                       category === 'css' ? '#4CC9F0' :
-                      '#FFD166',
+                      category === 'javascript' ? '#FFD166' :
+                      '#4ADE80',
                   }}
                   placeholder={intro.bonusPlaceholder}
                   disabled={submitted}
@@ -340,13 +385,13 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                   </span>
                 )}
                 <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-                  {category === 'javascript' && (
+                  {(category === 'javascript' || category === 'python') && (
                     <button
                       className="btn btn-secondary"
                       onClick={handleRun}
                       style={{ fontSize: '8px', padding: '6px 12px' }}
                     >
-                      ▶ JALANKAN JS
+                      ▶ JALANKAN {category === 'python' ? 'PYTHON' : 'JS'}
                     </button>
                   )}
                   {!submitted ? (
@@ -371,8 +416,12 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
         <div className="lesson-col-preview">
           <div className="preview-panel" style={{ borderColor: catColor, boxShadow: `4px 4px 0px ${intro.colorDark}` }}>
             <div className="preview-header" style={{ background: catColor }}>
-              <span className="preview-title">LIVE PREVIEW — KARYA BEBAS</span>
-              <span style={{ fontSize: '7px', color: '#080C16' }}>PIXEL → REALITY</span>
+              <span className="preview-title" style={{ color: category === 'python' ? '#09090b' : undefined }}>
+                LIVE PREVIEW — KARYA BEBAS
+              </span>
+              <span style={{ fontSize: '7px', color: category === 'python' ? '#09090b' : '#080C16' }}>
+                PIXEL → REALITY
+              </span>
             </div>
 
             {/* HTML Preview */}
@@ -388,6 +437,11 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
             {/* JS Preview */}
             {category === 'javascript' && (
               <JSBonusPreview code={code} runKey={runKey} />
+            )}
+
+            {/* Python Preview */}
+            {category === 'python' && (
+              <PythonBonusPreview code={code} runKey={runKey} />
             )}
           </div>
 
@@ -420,6 +474,15 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                 <li>alert() untuk popup asli browser</li>
                 <li>if (kondisi) {'{ ... }'} untuk kondisi</li>
                 <li>function nama() {'{ ... }'} untuk fungsi</li>
+              </ul>
+            )}
+            {category === 'python' && (
+              <ul className="bonus-tips-list">
+                <li>print("teks") untuk mencetak ke terminal</li>
+                <li>nama = "Evan" untuk variable tanpa let/const</li>
+                <li>total = 10 + 20 untuk operasi matematika</li>
+                <li>if kondisi: untuk percabangan dengan tanda titik dua :</li>
+                <li>f"Halo {'{nama}'}" untuk penggabungan teks f-string modern</li>
               </ul>
             )}
           </div>

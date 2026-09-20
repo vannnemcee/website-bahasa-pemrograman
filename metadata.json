@@ -1,6 +1,6 @@
 {
   "name": "Belajar Bahasa Pemrograman",
-  "description": "Web belajar HTML, CSS, dan JavaScript secara interaktif berbasis quest untuk pameran RPL. Lengkap dengan mode terang/gelap dan efek suara.",
+  "description": "Web belajar HTML, CSS, JavaScript, dan Python secara interaktif berbasis quest untuk pameran RPL. Lengkap dengan mode terang/gelap dan efek suara.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

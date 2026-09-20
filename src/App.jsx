@@ -101,7 +101,7 @@ function LoadingScreen({ isExiting, onTriggerExit }) {
         </h1>
 
         <p className="loading-subtitle">
-          HTML5 // CSS3 // MODERN JAVASCRIPT
+          HTML5 // CSS3 // MODERN JS // PYTHON
         </p>
 
         {/* Progress bar */}
@@ -117,12 +117,6 @@ function LoadingScreen({ isExiting, onTriggerExit }) {
               style={{ width: `${progress}%` }}
             />
           </div>
-
-          {progress === 100 && (
-            <div className="loading-enter-prompt">
-              <span className="prompt-arrow">▲</span> MELUNCUR KE ATAS... <span className="prompt-arrow">▲</span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -185,7 +179,7 @@ function HomeScreen({ onStart, soundEnabled }) {
           {'<'} <span>Learn.</span> <span>Code.</span> <span>Create.</span> {' />'}
         </p>
         <p className="home-desc">
-          Kuasai HTML, CSS &amp; JavaScript melalui<br />
+          Kuasai HTML, CSS, JavaScript &amp; Python melalui<br />
           <span style={{ color: 'var(--color-white)' }}>quest interaktif bergaya pixel game.</span><br />
           Jadikan kode kamu menjadi kenyataan!
         </p>

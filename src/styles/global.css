@@ -855,6 +855,7 @@ body::before {
 .category-card.html-card:hover { border-color: var(--color-html); }
 .category-card.css-card:hover { border-color: var(--color-css); }
 .category-card.js-card:hover { border-color: var(--color-js); }
+.category-card.python-card:hover { border-color: var(--color-green); }
 
 .category-icon {
   font-size: 24px;

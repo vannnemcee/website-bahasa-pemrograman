@@ -34,6 +34,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
     html: 'index.html',
     css: 'style.css',
     javascript: 'main.js',
+    python: 'main.py',
   };
 
   const currentFileName = fileNames[category] || 'code.txt';
@@ -102,7 +103,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
                 </div>
                 <div className="intro-hero-info">
                   <div className="intro-hero-type-tag" style={{ color: intro.color }}>
-                    MODUL PEMROGRAMAN WEB
+                    {category === 'python' ? 'MODUL PEMROGRAMAN PYTHON' : 'MODUL PEMROGRAMAN WEB'}
                   </div>
                   <h1 className="intro-hero-title" style={{ color: intro.color }}>
                     {category === 'javascript' ? 'JAVASCRIPT' : category.toUpperCase()}
@@ -126,12 +127,16 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
                       ? 'Markup Language (Struktur)'
                       : category === 'css'
                       ? 'Style Sheet (Desain & Tampilan)'
-                      : 'Scripting Language (Interaktif & Logika)'}
+                      : category === 'javascript'
+                      ? 'Scripting Language (Interaktif & Logika)'
+                      : 'General-Purpose Programming (AI & Data)'}
                   </span>
                 </div>
                 <div className="intro-spec-item">
                   <span className="spec-label">STATUS:</span>
-                  <span className="spec-val">Standard Web Technology // W3C</span>
+                  <span className="spec-val">
+                    {category === 'python' ? 'Open Source // Python Software Foundation' : 'Standard Web Technology // W3C'}
+                  </span>
                 </div>
               </div>
 

@@ -3,6 +3,7 @@ import { lessons, categoryInfo } from '../data/lessons';
 import CodeEditor from './CodeEditor';
 import ResultModal from './ResultModal';
 import { soundRun, soundSuccess, soundError, soundHint, soundBack, soundClick } from '../utils/sounds';
+import { runPythonCode } from '../utils/pythonRunner';
 
 /* ========= VALIDATION HELPERS ========= */
 function normalizeCode(str) {
@@ -52,6 +53,39 @@ function checkAnswer(code, lesson) {
     }
   }
 
+  if (checkType === 'html-input') {
+    const { type, placeholder } = checkConfig;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(code, 'text/html');
+      const input = doc.querySelector('input');
+      if (!input) return false;
+      const typeMatch = !type || (input.getAttribute('type') || 'text').toLowerCase() === type.toLowerCase();
+      const phMatch = !placeholder || (input.getAttribute('placeholder') || '').toLowerCase().includes(placeholder.toLowerCase());
+      return typeMatch && phMatch;
+    } catch {
+      return false;
+    }
+  }
+
+  if (checkType === 'html-list') {
+    const { parent, child, text } = checkConfig;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(code, 'text/html');
+      const p = doc.querySelector(parent || 'ul');
+      if (!p) return false;
+      const c = p.querySelector(child || 'li');
+      if (!c) return false;
+      if (text) {
+        return c.textContent.trim().toLowerCase().includes(text.toLowerCase());
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   if (checkType === 'css-property') {
     const { property, value } = checkConfig;
     const norm = normalizeCode(code);
@@ -81,6 +115,26 @@ function checkAnswer(code, lesson) {
     if (normPat.includes('nama="evan"')) {
       return norm.includes('nama="evan"');
     }
+
+    return false;
+  }
+
+  if (checkType === 'python-pattern') {
+    const { pattern } = checkConfig;
+    const norm = normalizeCode(code);
+    const normPat = normalizeCode(pattern);
+    if (norm.includes(normPat)) return true;
+
+    if (normPat.includes('print("helloworld")') && norm.includes('print("helloworld")')) return true;
+    if (normPat.includes('print(2026)') && norm.includes('print(2026)')) return true;
+    if (normPat.includes('nama="evan"') && norm.includes('nama="evan"')) return true;
+    if (normPat.includes('hasil=10+5') && (norm.includes('hasil=10+5') || norm.includes('hasil=15'))) return true;
+    if (normPat.includes('print(nama)') && norm.includes('print(nama)')) return true;
+    if (normPat.includes('10>5') && norm.includes('print("benar")')) return true;
+    if (normPat.includes('buah=') && norm.includes('buah=[') && norm.includes('"apel"') && norm.includes('"jeruk"')) return true;
+    if (normPat.includes('range(5)') && norm.includes('print(i)')) return true;
+    if (normPat.includes('defsapa') && norm.includes('defsapa()') && norm.includes('print("halo!")')) return true;
+    if (normPat.includes('f"halo') && norm.includes('{nama}')) return true;
 
     return false;
   }
@@ -199,6 +253,58 @@ function JSPreview({ code, runKey }) {
   );
 }
 
+/* ========= PYTHON PREVIEW — In-Browser Simulator ========= */
+function PythonPreview({ code, runKey, hasRun }) {
+  if (!hasRun) {
+    return (
+      <div style={{ padding: '16px', background: '#09090b', minHeight: '80px', display: 'flex', alignItems: 'center' }}>
+        <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', lineHeight: 2.2, margin: 0 }}>
+          ▶ Klik tombol <strong style={{ color: '#4ADE80' }}>RUN</strong> untuk mengeksekusi kode Python!<br />
+          • <code style={{ color: '#4ADE80' }}>print(...)</code> → output langsung tampil di terminal<br />
+          • <code style={{ color: '#FACC15' }}>nama = "Evan"</code> → simpan variable dinamis
+        </p>
+      </div>
+    );
+  }
+
+  const { output, error } = runPythonCode(code);
+
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '12px 14px',
+        background: '#09090b',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '90px',
+      }}
+    >
+      <div style={{ color: '#71717a', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
+        $ python3 main.py
+      </div>
+      {output.length === 0 && !error && (
+        <div style={{ color: '#71717a', fontStyle: 'italic', fontSize: '9px' }}>
+          (Program selesai dijalankan tanpa output)
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#4ADE80', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          {error}
+        </div>
+      )}
+      <div style={{ marginTop: '10px', color: '#52525b', fontSize: '8px' }}>
+        [Proses selesai dengan kode keluar 0]
+      </div>
+    </div>
+  );
+}
+
 /* ========= LESSON DETAIL ========= */
 function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, soundEnabled }) {
   const [code, setCode] = useState(lesson.starterCode || '');
@@ -230,6 +336,7 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
     html: '#FF667D',
     css: '#4CC9F0',
     javascript: '#FFD166',
+    python: '#4ADE80',
   };
   const catColor = catColorMap[category] || '#4CC9F0';
 
@@ -450,6 +557,18 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {category === 'python' && (
+            <div className="preview-panel" style={{ marginTop: '16px' }}>
+              <div className="preview-header" style={{ background: 'var(--color-green)' }}>
+                <span className="preview-title" style={{ color: '#09090b' }}>
+                  PYTHON TERMINAL — {hasRun ? 'EXECUTED ✓' : 'TEKAN ▶ RUN'}
+                </span>
+                <span style={{ fontSize: '7px', color: '#09090b' }}>PIXEL → REALITY</span>
+              </div>
+              <PythonPreview code={code} runKey={runKey} hasRun={hasRun} />
             </div>
           )}
 

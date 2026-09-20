@@ -10,7 +10,9 @@ function CodeEditor({ value, onChange, category }) {
       ? '<!-- Ketik kode HTML kamu di sini -->'
       : category === 'css'
       ? '/* Ketik property CSS di sini */'
-      : '// Ketik kode JavaScript di sini';
+      : category === 'javascript'
+      ? '// Ketik kode JavaScript di sini'
+      : '# Ketik kode Python kamu di sini';
 
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
@@ -40,7 +42,9 @@ function CodeEditor({ value, onChange, category }) {
       ? '#FF8B9A'
       : category === 'css'
       ? '#4CC9F0'
-      : '#FFD166';
+      : category === 'javascript'
+      ? '#FFD166'
+      : '#4ADE80';
 
   // Karakter penting untuk koding yang sulit diakses di keyboard HP
   const mobileSymbols =
@@ -48,7 +52,9 @@ function CodeEditor({ value, onChange, category }) {
       ? ['<', '>', '/', '=', '"', "'", '!', '-', 'TAB']
       : category === 'css'
       ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
-      : ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB'];
+      : category === 'javascript'
+      ? ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB']
+      : ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB'];
 
   return (
     <div className="editor-wrapper">
