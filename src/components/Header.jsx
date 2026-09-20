@@ -96,10 +96,10 @@ function Header({
           BELAJAR <span>KODE</span>
         </div>
 
-        {/* Nav */}
-        <nav className="header-nav">
+        {/* Nav Bar */}
+        <nav className="header-nav" aria-label="Navigasi Kategori">
           <button
-            className={`nav-btn ${screen === 'category' && !selectedCategory ? 'active' : ''}`}
+            className={`nav-btn ${screen === 'home' || (screen === 'category' && !selectedCategory) ? 'active' : ''}`}
             onClick={handleGoHome}
           >
             HOME
@@ -107,7 +107,7 @@ function Header({
           {Object.keys(categoryInfo).map((cat) => (
             <button
               key={cat}
-              className={`nav-btn ${selectedCategory === cat ? `active active-${cat === 'javascript' ? 'js' : cat}` : ''}`}
+              className={`nav-btn ${selectedCategory === cat && screen !== 'home' ? `active active-${cat === 'javascript' ? 'js' : cat}` : ''}`}
               onClick={() => handleSelectCat(cat)}
             >
               {categoryInfo[cat].label}
@@ -118,7 +118,9 @@ function Header({
         {/* Controls: progress + sound + theme */}
         <div className="header-controls">
           <div className="header-progress">
-            PROGRESS {overallPercent}%
+            <span className="progress-label-full">PROGRESS </span>
+            <span className="progress-label-short">LVL </span>
+            <span className="progress-num">{overallPercent}%</span>
           </div>
           <button
             className={`icon-btn ${soundEnabled ? '' : 'sound-off'}`}

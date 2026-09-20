@@ -18,7 +18,7 @@ function ProgressBar({ completed, total, color = '#63F5A8', shadowColor = '#2aaa
       <div className="progress-bar-track">
         <div
           className="progress-bar-fill"
-          style={{ width: `${pct}%`, background: color }}
+          style={{ width: `${pct}%`, background: color, boxShadow: `0 0 8px ${shadowColor}` }}
         />
       </div>
       <div className="progress-text-row">

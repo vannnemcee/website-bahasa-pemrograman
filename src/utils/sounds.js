@@ -53,7 +53,7 @@ function synth(freq, type = 'sine', duration = 0.06, gainPeak = 0.18, startDelay
 
     osc.start(now);
     osc.stop(now + duration + 0.01);
-  } catch (_) { /* Silence on error */ }
+  } catch { /* Silence on error */ }
 }
 
 /* =================================================================
@@ -137,6 +137,17 @@ export function soundError() {
 export function soundHint() {
   synth(1600, 'sine', 0.12, 0.08);
   synth(2000, 'sine', 0.10, 0.05, 0.06);
+}
+
+/**
+ * soundLaunch — Transisi selesai loading meluncur ke atas
+ * Nada arpeggio ascending 8-bit ceria
+ */
+export function soundLaunch() {
+  synth(523, 'square', 0.08, 0.12);
+  synth(659, 'square', 0.08, 0.12, 0.06);
+  synth(784, 'square', 0.09, 0.14, 0.12);
+  synth(1046, 'sine', 0.18, 0.15, 0.18);
 }
 
 /**

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { lessons, categoryInfo } from '../data/lessons';
 import CodeEditor from './CodeEditor';
 import ResultModal from './ResultModal';
@@ -184,7 +184,7 @@ function JSPreview({ code, runKey }) {
         errLine.textContent = 'Error: ' + e.message;
         out.appendChild(errLine);
       }
-    <\/script>
+    </script>
   </body>
 </html>`;
   return (
@@ -208,6 +208,17 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
   const [runKey, setRunKey] = useState(0);
   const [hasRun, setHasRun] = useState(false);
   const [mobileTab, setMobileTab] = useState('quest'); // 'quest' | 'editor'
+  const [prevLessonId, setPrevLessonId] = useState(lesson.id);
+
+  if (lesson.id !== prevLessonId) {
+    setPrevLessonId(lesson.id);
+    setCode(lesson.starterCode || '');
+    setResult(null);
+    setShowHint(false);
+    setMobileTab('quest');
+    setHasRun(false);
+  }
+
   const lessonList = lessons[category];
   const currentIndex = lessonList.findIndex((l) => l.id === lesson.id);
   const nextLesson = lessonList[currentIndex + 1] || null;
@@ -221,14 +232,6 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
     javascript: '#FFD166',
   };
   const catColor = catColorMap[category] || '#4CC9F0';
-
-  // Reset when lesson changes
-  useEffect(() => {
-    setCode(lesson.starterCode || '');
-    setResult(null);
-    setShowHint(false);
-    setMobileTab('quest');
-  }, [lesson.id]);
 
   function handleRun() {
     if (soundEnabled) soundRun();
@@ -264,6 +267,14 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
       {/* Header row */}
       <div className="lesson-detail-header">
         <button className="btn btn-ghost" onClick={() => { if(soundEnabled) soundBack(); onBack(); }}>← BACK</button>
+
+        {/* Compact info pill for mobile */}
+        <div className="mobile-hud-badge">
+          <span className="mobile-hud-cat" style={{ color: catColor }}>{info.label}</span>
+          <span className="mobile-hud-sep">//</span>
+          <span className="mobile-hud-num">Q{String(currentIndex + 1).padStart(2, '0')}</span>
+          <span className={`mobile-hud-status-dot ${isCleared ? 'cleared' : 'learning'}`} title={isCleared ? 'Cleared' : 'Learning'} />
+        </div>
 
         <div className="quest-hud">
           <div className="hud-item">

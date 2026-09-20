@@ -102,7 +102,7 @@ function JSBonusPreview({ code, runKey }) {
         errLine.textContent = 'Error: ' + e.message;
         out.appendChild(errLine);
       }
-    <\/script>
+    </script>
   </body>
 </html>`;
 
