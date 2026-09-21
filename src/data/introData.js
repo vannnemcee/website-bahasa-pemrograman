@@ -160,7 +160,7 @@ if (level > 0) {
     bonusInstruction:
       "Buatlah program JavaScript bebas! Gunakan kombinasi variable, kondisi if, perulangan for, dan function yang sudah kamu pelajari. Tidak ada jawaban yang salah — berkreasi sesuka hati!",
     bonusPlaceholder: `// Tulis kode JavaScript bebasmu di sini!
-let nama = "Evan";
+let nama = "Budi";
 let skor = 100;
 
 console.log("Halo, " + nama);
@@ -229,6 +229,124 @@ print("Hasil Penjumlahan:", total)
 
 if total > 30:
     print("Hebat! Total melebihi 30!")`,
+    bonusMinLength: 15,
+  },
+
+  php: {
+    abbreviation: "PHP: Hypertext Preprocessor",
+    tagline: "Bahasa Server-Side Terpopuler untuk Website Dinamis",
+    description:
+      "PHP adalah bahasa skrip server-side yang dirancang khusus untuk pengembangan web. PHP berjalan di server web, memproses logika database, dan menghasilkan HTML dinamis yang dikirimkan ke browser pengguna. Lebih dari 75% website di dunia ditenagai oleh PHP, termasuk WordPress dan Wikipedia!",
+    kepanjangan: [
+      { huruf: "P", kata: "PHP", arti: "Singkatan rekursif untuk PHP: Hypertext Preprocessor" },
+      { huruf: "H", kata: "Hypertext", arti: "Menghasilkan dokumen web terstruktur dan interaktif" },
+      { huruf: "P", kata: "Preprocessor", arti: "Dieksekusi di server sebelum kode dikirim ke browser pengguna" },
+    ],
+    facts: [
+      "🐘 Diciptakan oleh Rasmus Lerdorf pada tahun 1994",
+      "🌐 Menggerakkan lebih dari 75% website di internet termasuk platform WordPress",
+      "💼 Website raksasa seperti Wikipedia, Slack, Canva, dan Facebook berawal dari PHP",
+      "⚡ Versi PHP 8 modern sangat cepat berkat dukungan JIT (Just-In-Time) compiler",
+      "🔌 Sangat mudah terhubung dengan sistem database seperti MySQL dan PostgreSQL",
+    ],
+    whatYouLearn: [
+      "Menampilkan output teks dengan perintah echo dan print",
+      "Memahami struktur tag pembuka <?php dan penutup ?>",
+      "Membuat variable dinamis menggunakan awalan dollar ($)",
+      "Melakukan operasi aritmatika dan kalkulasi angka",
+      "Menggabungkan string dengan operator titik (.)",
+      "Logika percabangan kondisi dengan if statement",
+      "Menyimpan banyak data dalam array []",
+      "Membaca elemen array dengan perulangan foreach",
+      "Mendefinisikan fungsi kustom dengan kata kunci function",
+    ],
+    icon: "🐘",
+    color: "#8892BF",
+    colorDark: "#4F5B93",
+    example: `<?php
+$nama = "Programmer Web";
+$tahun = 2026;
+
+echo "Halo, " . $nama . "!\n";
+echo "Selamat datang di era PHP " . $tahun;
+?>`,
+    bonusTitle: "TUGAS BEBAS PHP",
+    bonusInstruction:
+      "Buatlah skrip PHP bebas! Gunakan tag <?php, variabel $, perintah echo, dan logika percabangan if atau perulangan foreach yang sudah kamu pelajari.",
+    bonusPlaceholder: `<?php
+$nama = "Programmer PHP";
+$skor = 90;
+
+echo "Nama: " . $nama . "\n";
+echo "Skor Ujian: " . $skor . "\n";
+
+if ($skor >= 75) {
+    echo "Status: LULUS DENGAN BAIK!\n";
+}
+?>`,
+    bonusMinLength: 15,
+  },
+
+  typescript: {
+    abbreviation: "Typed JavaScript at Any Scale",
+    tagline: "JavaScript Modern dengan Sistem Tipe Data Statis",
+    description:
+      "TypeScript adalah bahasa pemrograman open-source yang dikembangkan oleh Microsoft. TypeScript merupakan superset ketat dari JavaScript yang menambahkan pengetikan statis (static typing). Dengan TypeScript, kesalahan penulisan kode atau bug tipe data dapat terdeteksi sejak awal sebelum kode dijalankan di browser!",
+    kepanjangan: [
+      { huruf: "T", kata: "Type", arti: "Menyediakan sistem tipe data statis yang kuat dan aman" },
+      { huruf: "S", kata: "SuperSet", arti: "Semua kode JavaScript valid adalah kode TypeScript yang sah" },
+    ],
+    facts: [
+      "🔷 Dikembangkan dan didukung penuh secara resmi oleh Microsoft sejak 2012",
+      "🛡️ Mampu mendeteksi dan mencegah lebih dari 15% bug umum JS saat coding",
+      "🚀 Menjadi standar wajib di Google, Netflix, Airbnb, Microsoft, dan Uber",
+      "🔄 Selalu mendukung fitur-fitur tercanggih ECMAScript generasi terbaru",
+      "📦 Framework papan atas seperti Next.js, React, Angular, dan Vue mengandalkannya",
+    ],
+    whatYouLearn: [
+      "Mendeklarasikan tipe primitif: string, number, dan boolean",
+      "Membatasi tipe elemen dalam array dengan Type[]",
+      "Menentukan tipe parameter dan nilai return fungsi",
+      "Membuat kontrak bentuk objek yang ketat dengan interface",
+      "Membatasi ragam nilai yang diizinkan dengan Union Types & type alias",
+      "Menandai properti opsional menggunakan tanda tanya (?)",
+      "Membangun fungsi fleksibel dan aman dengan Generics (<T>)",
+      "Mengelompokkan daftar konstanta menggunakan fitur enum",
+    ],
+    icon: "TS",
+    color: "#3178C6",
+    colorDark: "#235a97",
+    example: `interface Siswa {
+  nama: string;
+  nilai: number;
+}
+
+let murid: Siswa = {
+  nama: "Budi",
+  nilai: 95,
+};
+
+console.log(murid.nama + " mendapatkan nilai: " + murid.nilai);`,
+    bonusTitle: "TUGAS BEBAS TYPESCRIPT",
+    bonusInstruction:
+      "Buatlah program TypeScript bebas! Gunakan penentuan tipe eksplisit, interface objek, atau fungsi dengan parameter bertipe.",
+    bonusPlaceholder: `interface Player {
+  username: string;
+  score: number;
+  isPro: boolean;
+}
+
+const player: Player = {
+  username: "PixelCoder",
+  score: 100,
+  isPro: true,
+};
+
+console.log("Player: " + player.username);
+console.log("Score: " + player.score);
+if (player.isPro) {
+  console.log("Status: Pro Gamer!");
+}`,
     bonusMinLength: 15,
   },
 };

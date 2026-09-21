@@ -13,7 +13,11 @@ function CodeEditor({ value, onChange, category }) {
       ? '/* Ketik property CSS di sini */'
       : category === 'javascript'
       ? '// Ketik kode JavaScript di sini'
-      : '# Ketik kode Python kamu di sini';
+      : category === 'python'
+      ? '# Ketik kode Python kamu di sini'
+      : category === 'php'
+      ? '<?php // Ketik kode PHP kamu di sini ?>'
+      : '// Ketik kode TypeScript kamu di sini';
 
   const handleKeyDown = (e) => {
     handleEditorKeyDown(e, value, onChange, category, textareaRef);
@@ -30,7 +34,11 @@ function CodeEditor({ value, onChange, category }) {
       ? '#4CC9F0'
       : category === 'javascript'
       ? '#FFD166'
-      : '#4ADE80';
+      : category === 'python'
+      ? '#4ADE80'
+      : category === 'php'
+      ? '#8892BF'
+      : '#3178C6';
 
   // Karakter penting untuk koding yang sulit diakses di keyboard HP
   const mobileSymbols =
@@ -40,7 +48,11 @@ function CodeEditor({ value, onChange, category }) {
       ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
       : category === 'javascript'
       ? ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB']
-      : ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB'];
+      : category === 'python'
+      ? ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB']
+      : category === 'php'
+      ? ['$', '(', ')', '{', '}', ';', '=', '"', "'", '.', '>', 'TAB']
+      : [':', ';', '(', ')', '{', '}', '<', '>', '=', '"', '?', 'TAB'];
 
   return (
     <div className="editor-wrapper">

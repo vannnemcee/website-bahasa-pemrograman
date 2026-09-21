@@ -3,8 +3,11 @@ import { lessons, categoryInfo } from '../data/lessons';
 import CodeEditor from './CodeEditor';
 import ResultModal from './ResultModal';
 import BrandIcon from './BrandIcon';
-import { soundRun, soundSuccess, soundError, soundHint, soundBack, soundClick } from '../utils/sounds';
+import { soundRun, soundSuccess, soundError, soundHint, soundBack, soundClick, soundHover } from '../utils/sounds';
 import { runPythonCode } from '../utils/pythonRunner';
+import { runPhpCode } from '../utils/phpRunner';
+import { runTypeScriptCode } from '../utils/typescriptRunner';
+import { BookOpen, Code2 } from 'lucide-react';
 
 /* ========= VALIDATION HELPERS ========= */
 function normalizeCode(str) {
@@ -103,6 +106,16 @@ function checkAnswer(code, lesson) {
 
     if (norm.includes(normPat)) return true;
 
+    // Periksa loop for (termasuk toleransi jika pengguna typo angka 1 menggantikan huruf i, seperti: let 1 = 0)
+    if (normPat.includes('for(')) {
+      const fixedNorm = norm.replace(/for\(let1=0/g, 'for(leti=0').replace(/for\(1=0/g, 'for(i=0');
+      const hasForLoop = (fixedNorm.includes('leti=0') || fixedNorm.includes('i=0')) &&
+                         (fixedNorm.includes('i<5') || fixedNorm.includes('i<=4')) &&
+                         (fixedNorm.includes('i++') || fixedNorm.includes('++i') || fixedNorm.includes('i+=1'));
+      const hasLog = fixedNorm.includes('console.log(i)');
+      if (hasForLoop && hasLog) return true;
+    }
+
     // Pengecekan cerdas untuk kondisi if dan function jika ada variasi tanda kurung kurawal {}
     if (normPat.includes('if(')) {
       return norm.includes('if(5>3)') && (norm.includes('console.log("benar")') || norm.includes('console.log("benar")'));
@@ -113,8 +126,8 @@ function checkAnswer(code, lesson) {
     if (normPat.includes('hasil=5+3')) {
       return norm.includes('hasil=5+3');
     }
-    if (normPat.includes('nama="evan"')) {
-      return norm.includes('nama="evan"');
+    if (normPat.includes('nama="budi"')) {
+      return norm.includes('nama="budi"') || norm.includes("nama='budi'");
     }
 
     return false;
@@ -128,7 +141,7 @@ function checkAnswer(code, lesson) {
 
     if (normPat.includes('print("helloworld")') && norm.includes('print("helloworld")')) return true;
     if (normPat.includes('print(2026)') && norm.includes('print(2026)')) return true;
-    if (normPat.includes('nama="evan"') && norm.includes('nama="evan"')) return true;
+    if (normPat.includes('nama="budi"') && (norm.includes('nama="budi"') || norm.includes("nama='budi'"))) return true;
     if (normPat.includes('hasil=10+5') && (norm.includes('hasil=10+5') || norm.includes('hasil=15'))) return true;
     if (normPat.includes('print(nama)') && norm.includes('print(nama)')) return true;
     if (normPat.includes('10>5') && norm.includes('print("benar")')) return true;
@@ -136,6 +149,52 @@ function checkAnswer(code, lesson) {
     if (normPat.includes('range(5)') && norm.includes('print(i)')) return true;
     if (normPat.includes('defsapa') && norm.includes('defsapa()') && norm.includes('print("halo!")')) return true;
     if (normPat.includes('f"halo') && norm.includes('{nama}')) return true;
+
+    return false;
+  }
+
+  if (checkType === 'php-pattern') {
+    const { pattern } = checkConfig;
+    const cleanCode = code.replace(/<\?(?:php)?/gi, '').replace(/\?>/gi, '');
+    const cleanPat = pattern.replace(/<\?(?:php)?/gi, '').replace(/\?>/gi, '');
+    const norm = normalizeCode(cleanCode);
+    const normPat = normalizeCode(cleanPat);
+
+    if (norm.includes(normPat)) return true;
+
+    if (normPat.includes('echo"halodunia!"') && (norm.includes('echo"halodunia!"') || norm.includes("echo'halodunia!'"))) return true;
+    if (normPat.includes('belajarphp') && norm.includes('belajarphp')) return true;
+    if (normPat.includes('$nama="budi"') && (norm.includes('$nama="budi"') || norm.includes("$nama='budi'"))) return true;
+    if (normPat.includes('echo$nama') && norm.includes('echo$nama')) return true;
+    if (normPat.includes('10+5') && norm.includes('echo$hasil')) return true;
+    if (normPat.includes('echo"halo".$nama') || normPat.includes('echo"halo"')) {
+      return norm.includes('echo"halo".$nama') || norm.includes("echo'halo'.$nama") || norm.includes('echo"halo"');
+    }
+    if (normPat.includes('if($nilai>=75)') && norm.includes('echo"lulus"')) return true;
+    if (normPat.includes('$buah=') && norm.includes('"apel"') && norm.includes('"jeruk"')) return true;
+    if (normPat.includes('foreach($buahas$item)') && norm.includes('echo$item')) return true;
+    if (normPat.includes('functionsapa') && norm.includes('return"halo".$nama')) return true;
+
+    return false;
+  }
+
+  if (checkType === 'ts-pattern') {
+    const { pattern } = checkConfig;
+    const norm = normalizeCode(code);
+    const normPat = normalizeCode(pattern);
+
+    if (norm.includes(normPat)) return true;
+
+    if (normPat.includes('pesan:string') && norm.includes('pesan:string') && norm.includes('halotypescript')) return true;
+    if (normPat.includes('tahun:number') && norm.includes('tahun:number') && norm.includes('2026')) return true;
+    if (normPat.includes('aktif:boolean') && norm.includes('aktif:boolean') && norm.includes('true')) return true;
+    if (normPat.includes('angka:number[]') && norm.includes('angka:number[]') && norm.includes('[1,2,3]')) return true;
+    if (normPat.includes('functionkali') && norm.includes('returna*b')) return true;
+    if (normPat.includes('interfaceuser') && norm.includes('id:number') && norm.includes('nama:string')) return true;
+    if (normPat.includes('typestatus') && norm.includes('sukses') && norm.includes('gagal')) return true;
+    if (normPat.includes('interfacesiswa') && norm.includes('nama:string') && norm.includes('umur?:number')) return true;
+    if (normPat.includes('identitas<t>') && norm.includes('returnarg')) return true;
+    if (normPat.includes('enumarah') && norm.includes('atas="atas"') && norm.includes('bawah="bawah"')) return true;
 
     return false;
   }
@@ -206,7 +265,7 @@ function HTMLPreview({ code }) {
 
 /* ========= JS PREVIEW — iframe dengan allow-modals agar alert() beneran muncul ========= */
 function JSPreview({ code, runKey }) {
-  // Wrap kode JS user di dalam HTML dengan console.log redirect ke UI
+  // Wrap kode JS user di dalam HTML dengan console.log redirect ke UI & tangkap parse error
   const srcDoc = `<!DOCTYPE html>
 <html>
   <head>
@@ -220,7 +279,6 @@ function JSPreview({ code, runKey }) {
   <body>
     <div id="output"></div>
     <script>
-      // Redirect console.log ke div output
       var out = document.getElementById('output');
       var origLog = console.log;
       console.log = function() {
@@ -231,6 +289,21 @@ function JSPreview({ code, runKey }) {
         out.appendChild(line);
         origLog.apply(console, args);
       };
+
+      // Tangkap parse-time SyntaxError (misal typo: let 1 = 0)
+      window.onerror = function(msg, url, lineNo) {
+        var errLine = document.createElement('div');
+        errLine.className = 'log-line error';
+        var text = 'Error: ' + msg;
+        if (msg && msg.toLowerCase().indexOf('unexpected number') !== -1) {
+          text += ' (Tips: periksa penulisan variabel, gunakan huruf "i", bukan angka "1")';
+        }
+        errLine.textContent = text;
+        out.appendChild(errLine);
+        return true;
+      };
+    </script>
+    <script>
       try {
         ${code}
       } catch(e) {
@@ -262,7 +335,7 @@ function PythonPreview({ code, runKey, hasRun }) {
         <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', lineHeight: 2.2, margin: 0 }}>
           ▶ Klik tombol <strong style={{ color: '#4ADE80' }}>RUN</strong> untuk mengeksekusi kode Python!<br />
           • <code style={{ color: '#4ADE80' }}>print(...)</code> → output langsung tampil di terminal<br />
-          • <code style={{ color: '#FACC15' }}>nama = "Evan"</code> → simpan variable dinamis
+          • <code style={{ color: '#FACC15' }}>nama = "Budi"</code> → simpan variable dinamis
         </p>
       </div>
     );
@@ -306,6 +379,113 @@ function PythonPreview({ code, runKey, hasRun }) {
   );
 }
 
+/* ========= PHP PREVIEW — In-Browser Simulator ========= */
+function PHPPreview({ code, runKey, hasRun }) {
+  if (!hasRun) {
+    return (
+      <div style={{ padding: '16px', background: '#0c0d1c', minHeight: '80px', display: 'flex', alignItems: 'center' }}>
+        <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', lineHeight: 2.2, margin: 0 }}>
+          ▶ Klik tombol <strong style={{ color: '#8892BF' }}>RUN</strong> untuk menjalankan skrip PHP!<br />
+          • <code style={{ color: '#8892BF' }}>echo ...</code> → cetak respons ke browser/terminal<br />
+          • <code style={{ color: '#A5B4FC' }}>$nama = "Budi"</code> → variabel server-side
+        </p>
+      </div>
+    );
+  }
+
+  const { output, error } = runPhpCode(code);
+
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '12px 14px',
+        background: '#0c0d1c',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '90px',
+      }}
+    >
+      <div style={{ color: '#8892BF', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
+        $ php -f index.php
+      </div>
+      {output.length === 0 && !error && (
+        <div style={{ color: '#71717a', fontStyle: 'italic', fontSize: '9px' }}>
+          (Skrip PHP selesai tanpa output)
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#A5B4FC', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          Fatal error: {error}
+        </div>
+      )}
+      <div style={{ marginTop: '10px', color: '#4338ca', fontSize: '8px' }}>
+        [PHP Engine: Response HTTP 200 OK]
+      </div>
+    </div>
+  );
+}
+
+/* ========= TYPESCRIPT PREVIEW — In-Browser Simulator ========= */
+function TypeScriptPreview({ code, runKey, hasRun }) {
+  if (!hasRun) {
+    return (
+      <div style={{ padding: '16px', background: '#080e1a', minHeight: '80px', display: 'flex', alignItems: 'center' }}>
+        <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', lineHeight: 2.2, margin: 0 }}>
+          ▶ Klik tombol <strong style={{ color: '#3178C6' }}>RUN</strong> untuk kompilasi & eksekusi TypeScript!<br />
+          • <code style={{ color: '#3178C6' }}>let x: number</code> → static type checking<br />
+          • <code style={{ color: '#60A5FA' }}>console.log(...)</code> → output runtime
+        </p>
+      </div>
+    );
+  }
+
+  const { output, typeCheck, error } = runTypeScriptCode(code);
+
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '12px 14px',
+        background: '#080e1a',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '90px',
+      }}
+    >
+      <div style={{ color: '#60A5FA', fontSize: '9px', marginBottom: '6px', letterSpacing: '0.05em' }}>
+        $ tsc main.ts &amp;&amp; node main.js
+      </div>
+      <div style={{ color: error ? '#ff667d' : '#38bdf8', fontSize: '8px', marginBottom: '8px' }}>
+        [{typeCheck}]
+      </div>
+      {output.length === 0 && !error && (
+        <div style={{ color: '#71717a', fontStyle: 'italic', fontSize: '9px' }}>
+          (Program selesai dijalankan tanpa output)
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#93C5FD', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          TypeScript Error: {error}
+        </div>
+      )}
+      <div style={{ marginTop: '10px', color: '#1e3a8a', fontSize: '8px' }}>
+        [Compiler: Transpiled Cleanly]
+      </div>
+    </div>
+  );
+}
+
 /* ========= LESSON DETAIL ========= */
 function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, soundEnabled }) {
   const [code, setCode] = useState(lesson.starterCode || '');
@@ -338,6 +518,8 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
     css: '#4CC9F0',
     javascript: '#FFD166',
     python: '#4ADE80',
+    php: '#8892BF',
+    typescript: '#3178C6',
   };
   const catColor = catColorMap[category] || '#4CC9F0';
 
@@ -406,21 +588,37 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
         </div>
       </div>
 
-      {/* Mobile Tab Switcher untuk mempermudah layar sentuh / HP */}
-      <div className="mobile-lesson-tabs">
+      {/* Mobile Tab Switcher untuk mempermudah layar sentuh / HP / viewport responsif */}
+      <div className="mobile-lesson-tabs" style={{ '--cat-accent': catColor }}>
         <button
           type="button"
           className={`mobile-tab-btn ${mobileTab === 'quest' ? 'active' : ''}`}
-          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('quest'); }}
+          onClick={() => {
+            if (soundEnabled) soundClick();
+            setMobileTab('quest');
+          }}
+          onMouseEnter={() => {
+            if (soundEnabled) soundHover();
+          }}
         >
-          📋 MATERI & SOAL
+          <BookOpen size={13} className="tab-icon" />
+          <span>MATERI & SOAL</span>
+          {mobileTab === 'quest' && <span className="tab-active-dot" style={{ backgroundColor: catColor }} />}
         </button>
         <button
           type="button"
           className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
-          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('editor'); }}
+          onClick={() => {
+            if (soundEnabled) soundClick();
+            setMobileTab('editor');
+          }}
+          onMouseEnter={() => {
+            if (soundEnabled) soundHover();
+          }}
         >
-          ⚡ KODING & PREVIEW
+          <Code2 size={13} className="tab-icon" />
+          <span>KODING & PREVIEW</span>
+          {mobileTab === 'editor' && <span className="tab-active-dot" style={{ backgroundColor: catColor }} />}
         </button>
       </div>
 
@@ -577,6 +775,30 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
                 <span style={{ fontSize: '7px', color: '#09090b' }}>PIXEL → REALITY</span>
               </div>
               <PythonPreview code={code} runKey={runKey} hasRun={hasRun} />
+            </div>
+          )}
+
+          {category === 'php' && (
+            <div className="preview-panel" style={{ marginTop: '16px' }}>
+              <div className="preview-header" style={{ background: '#8892BF' }}>
+                <span className="preview-title" style={{ color: '#ffffff' }}>
+                  PHP SERVER — {hasRun ? 'EXECUTED ✓' : 'TEKAN ▶ RUN'}
+                </span>
+                <span style={{ fontSize: '7px', color: '#ffffff' }}>PIXEL → REALITY</span>
+              </div>
+              <PHPPreview code={code} runKey={runKey} hasRun={hasRun} />
+            </div>
+          )}
+
+          {category === 'typescript' && (
+            <div className="preview-panel" style={{ marginTop: '16px' }}>
+              <div className="preview-header" style={{ background: '#3178C6' }}>
+                <span className="preview-title" style={{ color: '#ffffff' }}>
+                  TS COMPILER &amp; RUNTIME — {hasRun ? 'EXECUTED ✓' : 'TEKAN ▶ RUN'}
+                </span>
+                <span style={{ fontSize: '7px', color: '#ffffff' }}>PIXEL → REALITY</span>
+              </div>
+              <TypeScriptPreview code={code} runKey={runKey} hasRun={hasRun} />
             </div>
           )}
 

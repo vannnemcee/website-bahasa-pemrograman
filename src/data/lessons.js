@@ -314,15 +314,15 @@ export const lessons = {
       description: "Pelajari cara membuat variable JavaScript.",
       explanation:
         "Variable adalah wadah untuk menyimpan data. Gunakan let untuk variable yang bisa berubah, const untuk yang tetap.",
-      example: 'let nama = "Evan";',
-      instruction: 'Buat variable bernama "nama" dengan value "Evan".',
+      example: 'let nama = "Budi";',
+      instruction: 'Buat variable bernama "nama" dengan value "Budi".',
       starterCode: "",
       checkType: "js-pattern",
       checkConfig: {
-        pattern: 'let nama = "evan"',
-        description: 'variable let nama = "Evan"',
+        pattern: 'let nama = "budi"',
+        description: 'variable let nama = "Budi"',
       },
-      hint: 'Ketik: let nama = "Evan";',
+      hint: 'Ketik: let nama = "Budi";',
     },
     {
       id: 4,
@@ -410,7 +410,7 @@ export const lessons = {
       description: "Pelajari cara menggabungkan teks dan variable secara mudah.",
       explanation:
         "Template literals menggunakan tanda backtick (`) dan ${} untuk menyisipkan nilai variable ke dalam kalimat.",
-      example: 'let nama = "Evan";\nconsole.log(`Halo ${nama}`);',
+      example: 'let nama = "Budi";\nconsole.log(`Halo ${nama}`);',
       instruction: 'Tampilkan teks menggunakan backtick: console.log(`Halo ${nama}`);',
       starterCode: "",
       checkType: "js-pattern",
@@ -477,15 +477,15 @@ export const lessons = {
       description: "Pelajari cara menyimpan teks ke dalam variable Python.",
       explanation:
         "Python tidak memerlukan kata kunci let atau var! Cukup tuliskan nama variable diikuti tanda sama dengan (=) dan nilainya.",
-      example: 'nama = "Evan"',
-      instruction: 'Buat variable bernama "nama" dengan nilai string "Evan".',
+      example: 'nama = "Budi"',
+      instruction: 'Buat variable bernama "nama" dengan nilai string "Budi".',
       starterCode: "",
       checkType: "python-pattern",
       checkConfig: {
-        pattern: 'nama="evan"',
-        description: 'nama = "Evan"',
+        pattern: 'nama="budi"',
+        description: 'nama = "Budi"',
       },
-      hint: 'Ketik: nama = "Evan"',
+      hint: 'Ketik: nama = "Budi"',
     },
     {
       id: 4,
@@ -509,7 +509,7 @@ export const lessons = {
       description: "Pelajari cara mencetak isi variable ke layar terminal.",
       explanation:
         "Masukkan nama variable ke dalam tanda kurung print() untuk menampilkan nilainya ke layar terminal.",
-      example: 'nama = "Evan"\nprint(nama)',
+      example: 'nama = "Budi"\nprint(nama)',
       instruction: "Tampilkan isi variable nama menggunakan print(nama).",
       starterCode: "",
       checkType: "python-pattern",
@@ -589,7 +589,7 @@ export const lessons = {
       description: "Pelajari cara menggabungkan teks dan variable dengan f-string.",
       explanation:
         "F-string diawali huruf f sebelum tanda petik f\"...\". Variable di dalamnya cukup diapit kurung kurawal {variable}.",
-      example: 'nama = "Evan"\nprint(f"Halo, {nama}!")',
+      example: 'nama = "Budi"\nprint(f"Halo, {nama}!")',
       instruction: 'Gunakan f-string untuk mencetak: print(f"Halo {nama}").',
       starterCode: "",
       checkType: "python-pattern",
@@ -598,6 +598,332 @@ export const lessons = {
         description: 'print(f"Halo {nama}")',
       },
       hint: 'Ketik: print(f"Halo {nama}")',
+    },
+  ],
+
+  php: [
+    {
+      id: 1,
+      title: "Hello PHP",
+      description: "Pelajari cara menampilkan output teks dalam PHP.",
+      explanation:
+        "Di PHP, perintah echo digunakan untuk menampilkan teks ke layar. Setiap baris instruksi diakhiri dengan titik koma (;).",
+      example: 'echo "Halo Dunia!";',
+      instruction: 'Tampilkan teks "Halo Dunia!" menggunakan perintah echo.',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'echo "Halo Dunia!";',
+        description: 'echo "Halo Dunia!";',
+      },
+      hint: 'Ketik: echo "Halo Dunia!";',
+    },
+    {
+      id: 2,
+      title: "Tag Pembuka PHP",
+      description: "Pelajari tag standar <?php untuk memulai kode PHP.",
+      explanation:
+        "Kode PHP biasanya dibungkus di dalam tag <?php dan ?> agar server dapat memprosesnya sebagai skrip backend.",
+      example: '<?php\necho "Belajar PHP";\n?>',
+      instruction: 'Tulis tag pembuka <?php dan jalankan echo "Belajar PHP";',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: '<?php echo "Belajar PHP";',
+        description: '<?php echo "Belajar PHP"; ?>',
+      },
+      hint: 'Ketik: <?php echo "Belajar PHP"; ?>',
+    },
+    {
+      id: 3,
+      title: "Variabel dengan $",
+      description: "Pelajari cara membuat variabel di PHP menggunakan simbol dollar ($).",
+      explanation:
+        "Semua variabel di PHP selalu diawali dengan tanda dollar ($). Nama variabel bersifat case-sensitive.",
+      example: '$nama = "Budi";',
+      instruction: 'Buat variabel $nama dengan nilai "Budi".',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: '$nama = "Budi";',
+        description: '$nama = "Budi";',
+      },
+      hint: 'Ketik: $nama = "Budi";',
+    },
+    {
+      id: 4,
+      title: "Menampilkan Variabel",
+      description: "Pelajari cara mencetak isi variabel menggunakan echo.",
+      explanation:
+        "Kamu bisa mencetak variabel langsung dengan menuliskan nama variabelnya setelah kata kunci echo.",
+      example: '$skor = 100;\necho $skor;',
+      instruction: 'Tampilkan nilai dari variabel $nama menggunakan echo $nama;.',
+      starterCode: '$nama = "Budi";\n',
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'echo $nama;',
+        description: 'echo $nama;',
+      },
+      hint: 'Ketik: echo $nama;',
+    },
+    {
+      id: 5,
+      title: "Operasi Aritmatika",
+      description: "Pelajari perhitungan matematika dasar di PHP.",
+      explanation:
+        "PHP mendukung operator matematika seperti + (tambah), - (kurang), * (kali), dan / (bagi).",
+      example: '$hasil = 10 + 5;\necho $hasil;',
+      instruction: 'Buat variabel $hasil = 10 + 5; lalu cetak dengan echo $hasil;.',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: '$hasil = 10 + 5; echo $hasil;',
+        description: '$hasil = 10 + 5; echo $hasil;',
+      },
+      hint: 'Ketik: $hasil = 10 + 5; echo $hasil;',
+    },
+    {
+      id: 6,
+      title: "Penggabungan String (.)",
+      description: "Pelajari cara menggabungkan teks di PHP menggunakan operator titik (.).",
+      explanation:
+        "Berbeda dengan bahasa lain yang menggunakan +, PHP menggunakan operator titik (.) untuk menggabungkan (concatenate) string.",
+      example: '$depan = "Web";\n$belakang = "Dev";\necho $depan . " " . $belakang;',
+      instruction: 'Gabungkan teks: echo "Halo " . $nama;',
+      starterCode: '$nama = "Budi";\n',
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'echo "Halo " . $nama;',
+        description: 'echo "Halo " . $nama;',
+      },
+      hint: 'Ketik: echo "Halo " . $nama;',
+    },
+    {
+      id: 7,
+      title: "Percabangan If",
+      description: "Pelajari cara membuat keputusan logika dengan if statement.",
+      explanation:
+        "Struktur kondisi if mengeksekusi blok kode di dalam kurung kurawal {} hanya jika kondisi bernilai benar (true).",
+      example: 'if ($nilai >= 75) {\n  echo "Lulus";\n}',
+      instruction: 'Buat kondisi if: if ($nilai >= 75) { echo "Lulus"; }',
+      starterCode: '$nilai = 80;\n',
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'if ($nilai >= 75) { echo "Lulus"; }',
+        description: 'if ($nilai >= 75) { echo "Lulus"; }',
+      },
+      hint: 'Ketik: if ($nilai >= 75) { echo "Lulus"; }',
+    },
+    {
+      id: 8,
+      title: "Array PHP",
+      description: "Pelajari cara menyimpan banyak data dalam satu variabel array.",
+      explanation:
+        "Array di PHP dapat didefinisikan menggunakan tanda kurung siku [] yang berisi daftar elemen dipisahkan tanda koma.",
+      example: '$buah = ["Apel", "Mangga", "Jeruk"];',
+      instruction: 'Buat variabel $buah yang berisi array ["Apel", "Mangga", "Jeruk"].',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: '$buah = ["Apel", "Mangga", "Jeruk"];',
+        description: '$buah = ["Apel", "Mangga", "Jeruk"];',
+      },
+      hint: 'Ketik: $buah = ["Apel", "Mangga", "Jeruk"];',
+    },
+    {
+      id: 9,
+      title: "Perulangan Foreach",
+      description: "Pelajari cara mengulang setiap item di dalam array dengan foreach.",
+      explanation:
+        "Foreach adalah perulangan paling praktis di PHP untuk membaca elemen array satu per satu.",
+      example: 'foreach ($buah as $item) {\n  echo $item;\n}',
+      instruction: 'Buat loop: foreach ($buah as $item) { echo $item; }',
+      starterCode: '$buah = ["Apel", "Jeruk"];\n',
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'foreach ($buah as $item) { echo $item; }',
+        description: 'foreach ($buah as $item) { echo $item; }',
+      },
+      hint: 'Ketik: foreach ($buah as $item) { echo $item; }',
+    },
+    {
+      id: 10,
+      title: "Fungsi (Function)",
+      description: "Pelajari cara membuat fungsi kustom di PHP.",
+      explanation:
+        "Fungsi dideklarasikan dengan kata kunci function diikuti nama fungsi, parameter, dan blok kode yang dapat mengembalikan nilai dengan return.",
+      example: 'function sapa($nama) {\n  return "Halo " . $nama;\n}',
+      instruction: 'Buat fungsi sapa: function sapa($nama) { return "Halo " . $nama; }',
+      starterCode: "",
+      checkType: "php-pattern",
+      checkConfig: {
+        pattern: 'function sapa($nama) { return "Halo " . $nama; }',
+        description: 'function sapa($nama) { return "Halo " . $nama; }',
+      },
+      hint: 'Ketik: function sapa($nama) { return "Halo " . $nama; }',
+    },
+  ],
+
+  typescript: [
+    {
+      id: 1,
+      title: "Tipe Data String",
+      description: "Pelajari penentuan tipe data teks (string) secara eksplisit di TypeScript.",
+      explanation:
+        "TypeScript menambahkan sistem tipe pada JavaScript. Tipe dituliskan setelah tanda titik dua (:) pada nama variabel.",
+      example: 'let pesan: string = "Halo TypeScript!";\nconsole.log(pesan);',
+      instruction: 'Buat variabel let pesan: string = "Halo TypeScript!";',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'let pesan: string = "Halo TypeScript!";',
+        description: 'let pesan: string = "Halo TypeScript!";',
+      },
+      hint: 'Ketik: let pesan: string = "Halo TypeScript!";',
+    },
+    {
+      id: 2,
+      title: "Tipe Data Number",
+      description: "Pelajari deklarasi angka dengan tipe data number.",
+      explanation:
+        "Tipe number mencakup bilangan bulat (integer) dan bilangan desimal (float).",
+      example: 'let tahun: number = 2026;\nconsole.log(tahun);',
+      instruction: 'Deklarasikan variabel: let tahun: number = 2026;',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'let tahun: number = 2026;',
+        description: 'let tahun: number = 2026;',
+      },
+      hint: 'Ketik: let tahun: number = 2026;',
+    },
+    {
+      id: 3,
+      title: "Tipe Data Boolean",
+      description: "Pelajari nilai kebenaran true/false dengan tipe boolean.",
+      explanation:
+        "Tipe boolean hanya dapat menyimpan nilai true atau false untuk menandai suatu kondisi.",
+      example: 'let aktif: boolean = true;',
+      instruction: 'Buat variabel: let aktif: boolean = true;',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'let aktif: boolean = true;',
+        description: 'let aktif: boolean = true;',
+      },
+      hint: 'Ketik: let aktif: boolean = true;',
+    },
+    {
+      id: 4,
+      title: "Array Bertipe (Type[])",
+      description: "Pelajari cara membatasi jenis elemen di dalam array.",
+      explanation:
+        "Untuk menyatakan array bertipe angka, gunakan sintaks number[]. Jika ada data selain angka, compiler akan memberi peringatan.",
+      example: 'let nilai: number[] = [80, 90, 100];',
+      instruction: 'Buat variabel array: let angka: number[] = [1, 2, 3];',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'let angka: number[] = [1, 2, 3];',
+        description: 'let angka: number[] = [1, 2, 3];',
+      },
+      hint: 'Ketik: let angka: number[] = [1, 2, 3];',
+    },
+    {
+      id: 5,
+      title: "Parameter & Return Function",
+      description: "Pelajari penulisan tipe parameter dan nilai kembali (return) pada fungsi.",
+      explanation:
+        "Tipe parameter ditulis setelah nama parameter (a: number), dan tipe return ditulis setelah tanda kurung tutup parameter (): number.",
+      example: 'function tambah(a: number, b: number): number {\n  return a + b;\n}',
+      instruction: 'Buat fungsi kali: function kali(a: number, b: number): number { return a * b; }',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'function kali(a: number, b: number): number { return a * b; }',
+        description: 'function kali(a: number, b: number): number { return a * b; }',
+      },
+      hint: 'Ketik: function kali(a: number, b: number): number { return a * b; }',
+    },
+    {
+      id: 6,
+      title: "Interface Objek",
+      description: "Pelajari cara mendefinisikan bentuk (kontrak) sebuah objek dengan interface.",
+      explanation:
+        "Interface adalah fitur unggulan TypeScript untuk memastikan objek memiliki properti dengan tipe data yang sesuai.",
+      example: 'interface User {\n  id: number;\n  nama: string;\n}',
+      instruction: 'Buat interface User dengan properti id: number; dan nama: string;.',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'interface User { id: number; nama: string; }',
+        description: 'interface User { id: number; nama: string; }',
+      },
+      hint: 'Ketik: interface User { id: number; nama: string; }',
+    },
+    {
+      id: 7,
+      title: "Type Alias & Union",
+      description: "Pelajari pembuatan tipe kustom dengan batasan nilai tertentu (Union Types).",
+      explanation:
+        "Dengan kata kunci type dan operator pipa (|), kamu dapat membatasi isi variabel hanya pada nilai spesifik yang diizinkan.",
+      example: 'type Status = "sukses" | "gagal";\nlet hasil: Status = "sukses";',
+      instruction: 'Buat type alias: type Status = "sukses" | "gagal";',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'type Status = "sukses" | "gagal";',
+        description: 'type Status = "sukses" | "gagal";',
+      },
+      hint: 'Ketik: type Status = "sukses" | "gagal";',
+    },
+    {
+      id: 8,
+      title: "Optional Property (?)",
+      description: "Pelajari cara membuat properti opsional pada interface menggunakan tanda tanya (?).",
+      explanation:
+        "Tanda tanya (?) setelah nama properti menandakan bahwa properti tersebut boleh diisi atau dibiarkan kosong (undefined).",
+      example: 'interface Siswa {\n  nama: string;\n  umur?: number;\n}',
+      instruction: 'Buat interface Siswa dengan nama: string; dan properti opsional umur?: number;',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'interface Siswa { nama: string; umur?: number; }',
+        description: 'interface Siswa { nama: string; umur?: number; }',
+      },
+      hint: 'Ketik: interface Siswa { nama: string; umur?: number; }',
+    },
+    {
+      id: 9,
+      title: "Generics Sederhana (<T>)",
+      description: "Pelajari cara membuat komponen fleksibel yang mendukung berbagai tipe data dengan Generics.",
+      explanation:
+        "Generics menggunakan placeholder tipe (umumnya <T>) agar fungsi dapat menerima dan mengembalikan tipe apa pun secara aman.",
+      example: 'function identitas<T>(arg: T): T {\n  return arg;\n}',
+      instruction: 'Buat fungsi generics: function identitas<T>(arg: T): T { return arg; }',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'function identitas<T>(arg: T): T { return arg; }',
+        description: 'function identitas<T>(arg: T): T { return arg; }',
+      },
+      hint: 'Ketik: function identitas<T>(arg: T): T { return arg; }',
+    },
+    {
+      id: 10,
+      title: "Enum TypeScript",
+      description: "Pelajari cara mendefinisikan sekumpulan konstanta bernama dengan enum.",
+      explanation:
+        "Enum memungkinkan kita mendefinisikan daftar pilihan konstan yang terorganisir dan mudah dibaca.",
+      example: 'enum Arah {\n  Atas = "ATAS",\n  Bawah = "BAWAH",\n}',
+      instruction: 'Buat enum Arah { Atas = "ATAS", Bawah = "BAWAH" }',
+      starterCode: "",
+      checkType: "ts-pattern",
+      checkConfig: {
+        pattern: 'enum Arah { Atas = "ATAS", Bawah = "BAWAH" }',
+        description: 'enum Arah { Atas = "ATAS", Bawah = "BAWAH" }',
+      },
+      hint: 'Ketik: enum Arah { Atas = "ATAS", Bawah = "BAWAH" }',
     },
   ],
 };
@@ -634,5 +960,21 @@ export const categoryInfo = {
     icon: "🐍",
     color: "#4ADE80",
     colorDark: "#15803d",
+  },
+  php: {
+    label: "PHP",
+    subtitle: "Backend Engine",
+    description: "Pelajari bahasa backend server-side paling populer untuk web.",
+    icon: "🐘",
+    color: "#8892BF",
+    colorDark: "#4F5B93",
+  },
+  typescript: {
+    label: "TypeScript",
+    subtitle: "Type-Safe JS",
+    description: "Pelajari JavaScript dengan sistem tipe statis untuk aplikasi skala besar.",
+    icon: "TS",
+    color: "#3178C6",
+    colorDark: "#235a97",
   },
 };

@@ -378,6 +378,9 @@ body::before {
 .nav-btn.active-html { border-color: var(--color-html); color: var(--color-html); background: rgba(248, 113, 113, 0.08); }
 .nav-btn.active-css { border-color: var(--color-css); color: var(--color-css); background: rgba(56, 189, 248, 0.08); }
 .nav-btn.active-js { border-color: var(--color-js); color: var(--color-js); background: rgba(251, 191, 36, 0.08); }
+.nav-btn.active-python { border-color: #4ADE80; color: #4ADE80; background: rgba(74, 222, 128, 0.08); }
+.nav-btn.active-php { border-color: #8892BF; color: #A5B4FC; background: rgba(136, 146, 191, 0.12); }
+.nav-btn.active-typescript { border-color: #3178C6; color: #60A5FA; background: rgba(49, 120, 198, 0.12); }
 
 .header-controls {
   display: flex;
@@ -862,8 +865,10 @@ body::before {
 
 .category-card.html-card:hover { border-color: var(--color-html); }
 .category-card.css-card:hover { border-color: var(--color-css); }
-.category-card.js-card:hover { border-color: var(--color-js); }
+.category-card.js-card:hover, .category-card.javascript-card:hover { border-color: var(--color-js); }
 .category-card.python-card:hover { border-color: var(--color-green); }
+.category-card.php-card:hover { border-color: #8892BF; }
+.category-card.typescript-card:hover { border-color: #3178C6; }
 
 .category-icon {
   margin-bottom: 16px;
@@ -2243,11 +2248,164 @@ body::before {
    Fokus: Eliminasi overflow horizontal & Pengalaman sentuh yang nyaman
    ========================================================================== */
 
-/* Tablet & Smaller Desktops */
-@media (max-width: 860px) {
+/* ==========================================================================
+   SEGMENTED CONTROL TABS (LESSON & CHALLENGE VIEW SWITCHER)
+   ========================================================================== */
+.mobile-lesson-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  background: var(--bg-panel);
+  padding: 5px;
+  border: 1px solid var(--border-panel);
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 54px;
+  z-index: 25;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-theme='light'] .mobile-lesson-tabs {
+  background: rgba(244, 244, 245, 0.96);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--color-gray-light);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 2px;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  touch-action: manipulation;
+  user-select: none;
+  position: relative;
+}
+
+.mobile-tab-btn .tab-icon {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: transform 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+}
+
+.mobile-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-tab-btn:hover .tab-icon {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+[data-theme='light'] .mobile-tab-btn {
+  color: #71717a;
+}
+
+[data-theme='light'] .mobile-tab-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #09090b;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Active State */
+.mobile-tab-btn.active {
+  background: var(--bg-card);
+  color: var(--color-white);
+  border: 1px solid var(--cat-accent, var(--color-blue));
+  box-shadow: 0 0 14px rgba(76, 201, 240, 0.18), inset 0 0 0 1px rgba(76, 201, 240, 0.2);
+}
+
+.mobile-tab-btn.active .tab-icon {
+  opacity: 1;
+  color: var(--cat-accent, var(--color-blue));
+  transform: scale(1.08);
+}
+
+.mobile-tab-btn .tab-active-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+  animation: tabDotPulse 2s infinite ease-in-out;
+}
+
+@keyframes tabDotPulse {
+  0%, 100% { opacity: 0.7; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+[data-theme='light'] .mobile-tab-btn.active {
+  background: #ffffff;
+  color: #09090b;
+  border: 1px solid var(--cat-accent, #0000ee);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='light'] .mobile-tab-btn.active .tab-icon {
+  color: var(--cat-accent, #0000ee);
+}
+
+/* Wide screen (> 960px): both columns fit comfortably side-by-side */
+@media (min-width: 961px) {
+  .mobile-lesson-tabs {
+    display: none;
+  }
+}
+
+/* Tablet & Mobile (<= 960px) */
+@media (max-width: 960px) {
+  .main-content {
+    padding: 0 14px 32px;
+  }
+
   .lesson-layout {
     grid-template-columns: 100%;
     gap: 16px;
+  }
+
+  .mobile-lesson-tabs {
+    display: flex;
+  }
+
+  /* Filter Tab View on Mobile/Tablet */
+  .lesson-layout.mobile-tab-quest .lesson-col-editor {
+    display: none !important;
+  }
+
+  .lesson-layout.mobile-tab-editor .lesson-col-quest {
+    display: none !important;
+  }
+
+  .lesson-layout.mobile-tab-preview .lesson-col-editor {
+    display: none !important;
+  }
+
+  .lesson-layout.mobile-tab-editor .lesson-col-preview {
+    display: none !important;
+  }
+
+  .quest-hud {
+    display: none;
   }
 }
 
@@ -2255,51 +2413,6 @@ body::before {
 @media (max-width: 768px) {
   .main-content {
     padding: 0 12px 32px;
-  }
-
-  /* Segmented Mobile Switcher Tab */
-  .mobile-lesson-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
-    background: var(--bg-panel);
-    padding: 4px;
-    border: 1px solid var(--border-panel);
-    border-radius: 4px;
-    position: sticky;
-    top: 52px;
-    z-index: 20;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .mobile-tab-btn {
-    flex: 1;
-    min-width: 0;
-    font-family: var(--font-pixel);
-    font-size: 7.5px;
-    padding: 10px 6px;
-    background: transparent;
-    color: var(--color-gray);
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    border-radius: 3px;
-    transition: var(--transition);
-    white-space: nowrap;
-    touch-action: manipulation;
-  }
-
-  .mobile-tab-btn.active {
-    background: #fafafa;
-    color: #09090b;
-    font-weight: bold;
-    box-shadow: 1px 1px 0px #000000;
-  }
-
-  [data-theme='light'] .mobile-tab-btn.active {
-    background: #09090b;
-    color: #fafafa;
   }
 
   .mobile-start-code-btn {
@@ -2342,18 +2455,17 @@ body::before {
     flex: 1;
     min-width: 0;
   }
+}
 
-  /* Filter Tab View on Mobile */
-  .lesson-layout.mobile-tab-quest .lesson-col-editor {
-    display: none !important;
+@media (max-width: 500px) {
+  .mobile-tab-btn {
+    font-size: 7px;
+    padding: 8px 6px;
+    gap: 5px;
   }
-
-  .lesson-layout.mobile-tab-editor .lesson-col-quest {
-    display: none !important;
-  }
-
-  .quest-hud {
-    display: none;
+  .mobile-tab-btn .tab-icon {
+    width: 12px;
+    height: 12px;
   }
 }
 

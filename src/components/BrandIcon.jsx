@@ -1,5 +1,5 @@
 import React from 'react';
-import { faHtml5, faCss, faJs, faPython } from '@fortawesome/free-brands-svg-icons';
+import { faHtml5, faCss, faJs, faPython, faPhp, faTypescript } from '@fortawesome/free-brands-svg-icons';
 
 const ICON_MAP = {
   html: faHtml5,
@@ -10,6 +10,9 @@ const ICON_MAP = {
   js: faJs,
   python: faPython,
   py: faPython,
+  php: faPhp,
+  typescript: faTypescript,
+  ts: faTypescript,
 };
 
 /**
@@ -19,6 +22,8 @@ const ICON_MAP = {
  * - CSS: https://fontawesome.com/icons/brands/solid/css (faCss)
  * - JS: https://fontawesome.com/icons/brands/solid/js (faJs)
  * - Python: https://fontawesome.com/icons/brands/solid/python (faPython)
+ * - PHP: https://fontawesome.com/icons/brands/solid/php (faPhp)
+ * - TypeScript: <i class="fa-brands fa-typescript"></i> (faTypescript)
  */
 export function BrandIcon({
   name,

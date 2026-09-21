@@ -1,8 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { categoryIntro } from '../data/introData';
-import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
+import { soundRun, soundSuccess, soundClick, soundBack, soundHover } from '../utils/sounds';
 import { runPythonCode } from '../utils/pythonRunner';
+import { runPhpCode } from '../utils/phpRunner';
+import { runTypeScriptCode } from '../utils/typescriptRunner';
 import { handleEditorKeyDown, insertEditorSymbol } from '../utils/editorHelper';
+import { Code2, Play } from 'lucide-react';
 import BrandIcon from './BrandIcon';
 
 /* ===== HTML Preview for bonus ===== */
@@ -161,6 +164,91 @@ function PythonBonusPreview({ code, runKey }) {
   );
 }
 
+/* ===== PHP Preview for bonus ===== */
+function PHPBonusPreview({ code, runKey }) {
+  const { output, error } = runPhpCode(code);
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '14px',
+        background: '#0c0d1c',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '140px',
+      }}
+    >
+      <div style={{ color: '#8892BF', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
+        $ php -f index.php (Live PHP Engine)
+      </div>
+      {!code.trim() && (
+        <div style={{ color: '#6366f1', fontStyle: 'italic', fontSize: '9px' }}>
+          Ketik skrip PHP di sebelah kiri lalu klik JALANKAN PHP...
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#A5B4FC', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          Fatal error: {error}
+        </div>
+      )}
+      {code.trim() && (
+        <div style={{ marginTop: '10px', color: '#4338ca', fontSize: '8px' }}>
+          [PHP Response 200 OK]
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===== TypeScript Preview for bonus ===== */
+function TypeScriptBonusPreview({ code, runKey }) {
+  const { output, typeCheck, error } = runTypeScriptCode(code);
+  return (
+    <div
+      key={runKey}
+      style={{
+        padding: '14px',
+        background: '#080e1a',
+        fontFamily: "'Courier New', monospace",
+        fontSize: '11px',
+        minHeight: '140px',
+      }}
+    >
+      <div style={{ color: '#60A5FA', fontSize: '9px', marginBottom: '6px', letterSpacing: '0.05em' }}>
+        $ tsc main.ts &amp;&amp; node main.js (Live Transpiler)
+      </div>
+      <div style={{ color: error ? '#ff667d' : '#38bdf8', fontSize: '8px', marginBottom: '8px' }}>
+        [{typeCheck}]
+      </div>
+      {!code.trim() && (
+        <div style={{ color: '#38bdf8', fontStyle: 'italic', fontSize: '9px' }}>
+          Ketik kode TypeScript di sebelah kiri lalu klik JALANKAN TS...
+        </div>
+      )}
+      {output.map((line, idx) => (
+        <div key={idx} style={{ color: '#93C5FD', lineHeight: 1.6, wordBreak: 'break-all' }}>
+          &gt; {line}
+        </div>
+      ))}
+      {error && (
+        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
+          TypeScript Error: {error}
+        </div>
+      )}
+      {code.trim() && !error && (
+        <div style={{ marginTop: '10px', color: '#1e3a8a', fontSize: '8px' }}>
+          [Type check passed &amp; runtime finished]
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BonusChallenge({ category, onBack, onComplete, completedLessons, soundEnabled }) {
   const textareaRef = useRef(null);
   const intro = categoryIntro[category];
@@ -227,7 +315,11 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
       ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
       : category === 'javascript'
       ? ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB']
-      : ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB'];
+      : category === 'python'
+      ? ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB']
+      : category === 'php'
+      ? ['$', '(', ')', '{', '}', ';', '=', '"', "'", '.', '>', 'TAB']
+      : [':', ';', '(', ')', '{', '}', '<', '>', '=', '"', '?', 'TAB'];
 
   return (
     <div className="bonus-screen">
@@ -294,16 +386,32 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
         <button
           type="button"
           className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
-          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('editor'); }}
+          onClick={() => {
+            if (soundEnabled) soundClick();
+            setMobileTab('editor');
+          }}
+          onMouseEnter={() => {
+            if (soundEnabled) soundHover();
+          }}
         >
-          💻 EDITOR KODE
+          <Code2 size={13} className="tab-icon" />
+          <span>EDITOR KODE</span>
+          {mobileTab === 'editor' && <span className="tab-active-dot" style={{ backgroundColor: 'var(--color-blue)' }} />}
         </button>
         <button
           type="button"
           className={`mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
-          onClick={() => { if (soundEnabled) soundClick(); setMobileTab('preview'); }}
+          onClick={() => {
+            if (soundEnabled) soundClick();
+            setMobileTab('preview');
+          }}
+          onMouseEnter={() => {
+            if (soundEnabled) soundHover();
+          }}
         >
-          👁️ LIVE PREVIEW & TIPS
+          <Play size={13} className="tab-icon" />
+          <span>LIVE PREVIEW & TIPS</span>
+          {mobileTab === 'preview' && <span className="tab-active-dot" style={{ backgroundColor: 'var(--color-green)' }} />}
         </button>
       </div>
 
@@ -437,6 +545,16 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
             {category === 'python' && (
               <PythonBonusPreview code={code} runKey={runKey} />
             )}
+
+            {/* PHP Preview */}
+            {category === 'php' && (
+              <PHPBonusPreview code={code} runKey={runKey} />
+            )}
+
+            {/* TypeScript Preview */}
+            {category === 'typescript' && (
+              <TypeScriptBonusPreview code={code} runKey={runKey} />
+            )}
           </div>
 
           {/* Tips box */}
@@ -473,10 +591,28 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
             {category === 'python' && (
               <ul className="bonus-tips-list">
                 <li>print("teks") untuk mencetak ke terminal</li>
-                <li>nama = "Evan" untuk variable tanpa let/const</li>
+                <li>nama = "Budi" untuk variable tanpa let/const</li>
                 <li>total = 10 + 20 untuk operasi matematika</li>
                 <li>if kondisi: untuk percabangan dengan tanda titik dua :</li>
                 <li>f"Halo {'{nama}'}" untuk penggabungan teks f-string modern</li>
+              </ul>
+            )}
+            {category === 'php' && (
+              <ul className="bonus-tips-list">
+                <li>Gunakan tag {'<?php'} dan penutup {'?>'}</li>
+                <li>$nama = "Budi" untuk membuat variable dengan $</li>
+                <li>echo "teks" untuk menampilkan output</li>
+                <li>Operator titik (.) untuk menyambung string</li>
+                <li>if ($kondisi) {'{ ... }'} untuk percabangan</li>
+              </ul>
+            )}
+            {category === 'typescript' && (
+              <ul className="bonus-tips-list">
+                <li>let nama: string = "Budi" untuk tipe data statis</li>
+                <li>let angka: number[] = [1, 2, 3] untuk tipe array</li>
+                <li>interface Objek {'{ prop: type }'} untuk struktur data</li>
+                <li>function kali(a: number, b: number): number untuk fungsi bertipe</li>
+                <li>enum Arah {'{ Atas, Bawah }'} untuk daftar konstanta</li>
               </ul>
             )}
           </div>
