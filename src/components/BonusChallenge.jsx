@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { categoryIntro } from '../data/introData';
 import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
 import { runPythonCode } from '../utils/pythonRunner';
+import { handleEditorKeyDown, insertEditorSymbol } from '../utils/editorHelper';
+import BrandIcon from './BrandIcon';
 
 /* ===== HTML Preview for bonus ===== */
 function HTMLBonusPreview({ code }) {
@@ -176,28 +178,18 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   const lines = code.split('\n');
   const lineCount = Math.max(lines.length, 6);
 
-  const insertText = (str) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
-    const newVal = code.substring(0, start) + str + code.substring(end);
-    setCode(newVal);
-    setError('');
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.selectionStart = start + str.length;
-      textarea.selectionEnd = start + str.length;
-    }, 0);
+  const handleKeyDown = (e) => {
+    handleEditorKeyDown(e, code, (newVal) => {
+      setCode(newVal);
+      setError('');
+    }, category, textareaRef);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      insertText('  ');
-    }
+  const handleSymbolClick = (sym) => {
+    insertEditorSymbol(sym, code, (newVal) => {
+      setCode(newVal);
+      setError('');
+    }, textareaRef, category);
   };
 
   function handleRun() {
@@ -250,7 +242,8 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
         <div className="quest-hud">
           <div className="hud-item">
             <span className="hud-label">LEVEL</span>
-            <span className="hud-value" style={{ color: catColor }}>
+            <span className="hud-value" style={{ color: catColor, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <BrandIcon name={category} size={12} color={catColor} />
               {category.toUpperCase()}
             </span>
           </div>
@@ -340,7 +333,8 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                       key={sym}
                       type="button"
                       className="symbol-btn"
-                      onClick={() => insertText(sym === 'TAB' ? '  ' : sym)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSymbolClick(sym)}
                     >
                       {sym}
                     </button>

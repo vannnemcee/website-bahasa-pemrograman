@@ -1,6 +1,7 @@
 import React from 'react';
 import { lessons, categoryInfo } from '../data/lessons';
 import ProgressBar from './ProgressBar';
+import BrandIcon from './BrandIcon';
 import { soundSelect } from '../utils/sounds';
 
 function CategorySelection({ onSelectCategory, completedLessons, soundEnabled }) {
@@ -48,7 +49,7 @@ function CategorySelection({ onSelectCategory, completedLessons, soundEnabled })
               onKeyDown={(e) => e.key === 'Enter' && onSelectCategory(cat)}
             >
               <span className="category-icon" style={{ color: info.color }}>
-                {info.icon}
+                <BrandIcon name={cat} size={32} color={info.color} />
               </span>
               <span className="category-label" style={{ color: info.color }}>
                 {info.label}

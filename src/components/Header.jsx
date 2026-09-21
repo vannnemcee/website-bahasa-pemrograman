@@ -1,6 +1,8 @@
 import React from 'react';
 import { categoryInfo } from '../data/lessons';
-import { soundTheme, soundClick, soundBack, soundSelect } from '../utils/sounds';
+import { soundTheme, soundClick, soundHover, soundBack, soundSelect } from '../utils/sounds';
+import { Sun, Moon, Volume2, VolumeX } from 'lucide-react';
+import BrandIcon from './BrandIcon';
 
 function Header({
   screen,
@@ -23,7 +25,8 @@ function Header({
   }
 
   function handleToggleSound() {
-    if (soundEnabled) soundClick();
+    // Memberikan feedback audio klik baik saat mengaktifkan maupun mematikan suara
+    soundClick();
     onToggleSound();
   }
 
@@ -57,23 +60,30 @@ function Header({
             RPL INTERACTIVE EXHIBITION
           </div>
 
-          {/* Kanan: toggle sound & theme saja */}
+          {/* Kanan: toggle theme & sound (gaya Razzan Portfolio) */}
           <div className="header-controls">
+            {/* Theme Toggle (Light / Dark) */}
+            <button
+              className="icon-btn"
+              style={{ borderRadius: '0px' }}
+              onClick={handleToggleTheme}
+              onMouseEnter={() => { if (soundEnabled) soundHover(); }}
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+              aria-label="Toggle Dark/Light Mode"
+            >
+              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+            </button>
+
+            {/* Audio Toggle */}
             <button
               className={`icon-btn ${soundEnabled ? '' : 'sound-off'}`}
+              style={{ borderRadius: '0px' }}
               onClick={handleToggleSound}
-              title={soundEnabled ? 'Matikan Suara' : 'Aktifkan Suara'}
-              aria-label={soundEnabled ? 'Matikan Suara' : 'Aktifkan Suara'}
+              onMouseEnter={() => { if (soundEnabled) soundHover(); }}
+              title={soundEnabled ? 'Sound enabled' : 'Sound muted'}
+              aria-label="Toggle Sound Effects"
             >
-              {soundEnabled ? '🔊' : '🔇'}
-            </button>
-            <button
-              className={`icon-btn ${theme === 'light' ? 'theme-light' : 'theme-dark'}`}
-              onClick={handleToggleTheme}
-              title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-              aria-label={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-            >
-              {theme === 'dark' ? '🌙' : '☀️'}
+              {!soundEnabled ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
           </div>
         </div>
@@ -110,33 +120,42 @@ function Header({
               className={`nav-btn ${selectedCategory === cat && screen !== 'home' ? `active active-${cat === 'javascript' ? 'js' : cat}` : ''}`}
               onClick={() => handleSelectCat(cat)}
             >
+              <BrandIcon name={cat} size={11} style={{ marginRight: '5px' }} />
               {categoryInfo[cat].label}
             </button>
           ))}
         </nav>
 
-        {/* Controls: progress + sound + theme */}
+        {/* Controls: progress + theme + sound (gaya Razzan Portfolio) */}
         <div className="header-controls">
           <div className="header-progress">
             <span className="progress-label-full">PROGRESS </span>
             <span className="progress-label-short">LVL </span>
             <span className="progress-num">{overallPercent}%</span>
           </div>
+
+          {/* Theme Toggle (Light / Dark) */}
+          <button
+            className="icon-btn"
+            style={{ borderRadius: '0px' }}
+            onClick={handleToggleTheme}
+            onMouseEnter={() => { if (soundEnabled) soundHover(); }}
+            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            aria-label="Toggle Dark/Light Mode"
+          >
+            {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+          </button>
+
+          {/* Audio Toggle */}
           <button
             className={`icon-btn ${soundEnabled ? '' : 'sound-off'}`}
+            style={{ borderRadius: '0px' }}
             onClick={handleToggleSound}
-            title={soundEnabled ? 'Matikan Suara' : 'Aktifkan Suara'}
-            aria-label={soundEnabled ? 'Matikan Suara' : 'Aktifkan Suara'}
+            onMouseEnter={() => { if (soundEnabled) soundHover(); }}
+            title={soundEnabled ? 'Sound enabled' : 'Sound muted'}
+            aria-label="Toggle Sound Effects"
           >
-            {soundEnabled ? '🔊' : '🔇'}
-          </button>
-          <button
-            className={`icon-btn ${theme === 'light' ? 'theme-light' : 'theme-dark'}`}
-            onClick={handleToggleTheme}
-            title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-            aria-label={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-          >
-            {theme === 'dark' ? '🌙' : '☀️'}
+            {!soundEnabled ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </button>
         </div>
       </div>

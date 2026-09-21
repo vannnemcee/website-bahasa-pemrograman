@@ -7,7 +7,7 @@ import CategoryIntro from './components/CategoryIntro';
 import LessonList from './components/LessonList';
 import LessonDetail from './components/LessonDetail';
 import BonusChallenge from './components/BonusChallenge';
-import { soundClick, soundSelect, soundBack, soundLaunch } from './utils/sounds';
+import { soundClick, soundSelect, soundBack, soundLaunch, soundHover } from './utils/sounds';
 import './styles/global.css';
 
 const STORAGE_KEY = 'pixel-code-progress';
@@ -283,6 +283,37 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [loadingState, showResetConfirm, screen, handleTriggerExit]);
+
+  // Efek suara kursor hover (gaya micro-interaction Razzan Portfolio)
+  useEffect(() => {
+    if (!soundEnabled) return;
+
+    let lastTarget = null;
+    let lastSoundTime = 0;
+
+    const handlePointerOver = (e) => {
+      const target = e.target;
+      if (!target) return;
+      const interactiveEl = target.closest(
+        'button, a, .category-card, .lesson-card, .btn, .symbol-btn, .nav-btn, [role="button"], input, select, textarea, .tab-btn, .mobile-tab-btn, .sound-toggle-btn, .theme-toggle-btn'
+      );
+
+      if (interactiveEl && interactiveEl !== lastTarget) {
+        lastTarget = interactiveEl;
+        const now = performance.now();
+        // Throttle 45ms agar audio tetap jernih dan bebas distorsi
+        if (now - lastSoundTime > 45) {
+          lastSoundTime = now;
+          soundHover();
+        }
+      }
+    };
+
+    window.addEventListener('pointerover', handlePointerOver, { passive: true });
+    return () => {
+      window.removeEventListener('pointerover', handlePointerOver);
+    };
+  }, [soundEnabled]);
 
   function handleComplete(lessonKey) {
     setCompletedLessons((prev) => prev.includes(lessonKey) ? prev : [...prev, lessonKey]);

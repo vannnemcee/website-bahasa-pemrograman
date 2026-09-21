@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { categoryIntro } from '../data/introData';
 import { soundClick, soundSelect } from '../utils/sounds';
+import BrandIcon from './BrandIcon';
 
 function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
   const [step, setStep] = useState(0); // 0: overview, 1: kepanjangan, 2: fakta, 3: silabus
@@ -66,7 +67,9 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
           className="intro-category-badge"
           style={{ color: intro.color, borderColor: intro.color }}
         >
-          <span className="category-badge-icon">{intro.icon}</span>
+          <span className="category-badge-icon">
+            <BrandIcon name={category} size={14} color={intro.color} />
+          </span>
           <span className="category-badge-name">{category.toUpperCase()}</span>
         </div>
       </div>
@@ -99,7 +102,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled }) {
                   className="intro-hero-icon-box"
                   style={{ borderColor: intro.color, color: intro.color }}
                 >
-                  {intro.icon}
+                  <BrandIcon name={category} size={28} color={intro.color} />
                 </div>
                 <div className="intro-hero-info">
                   <div className="intro-hero-type-tag" style={{ color: intro.color }}>

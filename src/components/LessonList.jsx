@@ -1,6 +1,7 @@
 import React from 'react';
 import { lessons, categoryInfo } from '../data/lessons';
 import ProgressBar from './ProgressBar';
+import BrandIcon from './BrandIcon';
 import { soundClick, soundBack } from '../utils/sounds';
 
 function LessonList({ category, onSelectLesson, onBack, onSelectBonus, completedLessons, soundEnabled }) {
@@ -29,7 +30,8 @@ function LessonList({ category, onSelectLesson, onBack, onSelectBonus, completed
         >
           ← BACK
         </button>
-        <h1 className="lesson-list-title" style={{ color: catColor, fontSize: '12px' }}>
+        <h1 className="lesson-list-title" style={{ color: catColor, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <BrandIcon name={category} size={16} color={catColor} />
           {info.label} QUESTS
         </h1>
       </div>

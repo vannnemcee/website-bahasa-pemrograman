@@ -403,21 +403,19 @@ body::before {
 }
 
 .icon-btn {
-  font-family: var(--font-pixel);
-  font-size: 11px;
   width: 32px;
   height: 32px;
   border: 1px solid var(--border-panel);
   background: var(--bg-panel);
-  color: var(--color-white);
+  color: var(--color-gray-light);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   padding: 0;
   flex-shrink: 0;
-  border-radius: 2px;
+  border-radius: 0px;
 }
 
 .icon-btn:hover {
@@ -426,7 +424,17 @@ body::before {
 }
 
 .icon-btn.sound-off {
-  opacity: 0.45;
+  color: var(--color-gray);
+}
+
+.icon-btn.sound-off:hover {
+  border-color: var(--color-blue);
+  color: var(--color-blue);
+}
+
+.icon-btn svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -858,10 +866,19 @@ body::before {
 .category-card.python-card:hover { border-color: var(--color-green); }
 
 .category-icon {
-  font-size: 24px;
-  font-family: var(--font-pixel);
   margin-bottom: 16px;
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.brand-icon {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
+}
+
+.category-card:hover .brand-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 6px currentColor);
 }
 
 .category-label {
@@ -1179,6 +1196,8 @@ body::before {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
 }
 
 .quest-instruction {
@@ -1360,6 +1379,9 @@ body::before {
   min-height: 150px;
   line-height: 1.5;
   caret-color: var(--color-blue);
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+  tab-size: 2;
 }
 
 .editor-textarea::placeholder {

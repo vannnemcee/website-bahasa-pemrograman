@@ -15,11 +15,30 @@ let ctx = null;
 /** Dapatkan AudioContext — lazy init agar tidak kena autoplay policy */
 function getCtx() {
   if (!ctx) {
-    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      ctx = new AudioContextClass();
+    }
   }
   // Resume kalau suspended (autoplay policy)
-  if (ctx.state === 'suspended') ctx.resume();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
   return ctx;
+}
+
+// Unlock audio context pada interaksi pertama pengguna
+if (typeof window !== 'undefined') {
+  const unlockAudio = () => {
+    try {
+      const c = getCtx();
+      if (c && c.state === 'suspended') {
+        c.resume().catch(() => {});
+      }
+    } catch {}
+  };
+  window.addEventListener('pointerdown', unlockAudio, { passive: true });
+  window.addEventListener('keydown', unlockAudio, { passive: true });
 }
 
 /**
@@ -57,25 +76,63 @@ function synth(freq, type = 'sine', duration = 0.06, gainPeak = 0.18, startDelay
 }
 
 /* =================================================================
-   RAZZAN-STYLE SOUNDS
-   Dokumentasi dari useSoundFX.ts: playHover + playClick
+   RAZZAN-STYLE SOUNDS (PERSIS DARI useSoundFX.ts)
+   Repository: https://github.com/YuZann81/razzan-portofolio
 ================================================================= */
 
 /**
- * playHover — Tick pendek seperti mechanical keyboard hover
- * Razzan: sine wave, sangat pendek, frekuensi tinggi, volume kecil
+ * playHover — High-frequency subtle hover blip
+ * Triangle wave 1400Hz -> 1600Hz linear ramp, 0.02s
  */
 export function soundHover() {
-  synth(1800, 'sine', 0.04, 0.08);
+  try {
+    const c = getCtx();
+    if (!c) return;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1400, c.currentTime);
+    osc.frequency.linearRampToValueAtTime(1600, c.currentTime + 0.02);
+    gain.gain.setValueAtTime(0.03, c.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.02);
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + 0.02);
+  } catch {
+    // Ignore
+  }
 }
 
 /**
- * playClick — Click tegas dengan sedikit pitch drop
- * Razzan: dua nada cepat — attack tinggi lalu sedikit lebih rendah
+ * playClick — Subtle mechanical / digital click
+ * Sine wave 800Hz -> 200Hz exponential ramp, 0.04s
  */
 export function soundClick() {
-  synth(1200, 'sine', 0.05, 0.15);
-  synth(900, 'sine', 0.06, 0.08, 0.025);
+  try {
+    const c = getCtx();
+    if (!c) return;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, c.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, c.currentTime + 0.04);
+    gain.gain.setValueAtTime(0.08, c.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.04);
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + 0.04);
+  } catch {
+    // AudioContext might be blocked before user interaction
+  }
+}
+
+/**
+ * soundTheme — Toggle theme sound (menggunakan click khas Razzan)
+ */
+export function soundTheme() {
+  soundClick();
 }
 
 /* =================================================================
@@ -148,13 +205,4 @@ export function soundLaunch() {
   synth(659, 'square', 0.08, 0.12, 0.06);
   synth(784, 'square', 0.09, 0.14, 0.12);
   synth(1046, 'sine', 0.18, 0.15, 0.18);
-}
-
-/**
- * soundTheme — Toggle dark/light mode
- * Ping ringan dua nada yang terasa "switching"
- */
-export function soundTheme() {
-  synth(1200, 'sine', 0.06, 0.10);
-  synth(1600, 'sine', 0.07, 0.08, 0.05);
 }

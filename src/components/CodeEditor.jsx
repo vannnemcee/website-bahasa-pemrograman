@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { handleEditorKeyDown, insertEditorSymbol } from '../utils/editorHelper';
 
 function CodeEditor({ value, onChange, category }) {
   const textareaRef = useRef(null);
@@ -15,26 +16,11 @@ function CodeEditor({ value, onChange, category }) {
       : '# Ketik kode Python kamu di sini';
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      insertText('  ');
-    }
+    handleEditorKeyDown(e, value, onChange, category, textareaRef);
   };
 
-  const insertText = (str) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
-    const newVal = value.substring(0, start) + str + value.substring(end);
-    onChange(newVal);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.selectionStart = start + str.length;
-      textarea.selectionEnd = start + str.length;
-    }, 0);
+  const handleSymbolClick = (sym) => {
+    insertEditorSymbol(sym, value, onChange, textareaRef, category);
   };
 
   const syntaxColor =
@@ -67,7 +53,8 @@ function CodeEditor({ value, onChange, category }) {
               key={sym}
               type="button"
               className="symbol-btn"
-              onClick={() => insertText(sym === 'TAB' ? '  ' : sym)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => handleSymbolClick(sym)}
             >
               {sym}
             </button>

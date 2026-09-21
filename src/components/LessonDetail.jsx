@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { lessons, categoryInfo } from '../data/lessons';
 import CodeEditor from './CodeEditor';
 import ResultModal from './ResultModal';
+import BrandIcon from './BrandIcon';
 import { soundRun, soundSuccess, soundError, soundHint, soundBack, soundClick } from '../utils/sounds';
 import { runPythonCode } from '../utils/pythonRunner';
 
@@ -377,6 +378,7 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
 
         {/* Compact info pill for mobile */}
         <div className="mobile-hud-badge">
+          <BrandIcon name={category} size={12} color={catColor} style={{ marginRight: '4px' }} />
           <span className="mobile-hud-cat" style={{ color: catColor }}>{info.label}</span>
           <span className="mobile-hud-sep">//</span>
           <span className="mobile-hud-num">Q{String(currentIndex + 1).padStart(2, '0')}</span>
@@ -386,7 +388,10 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
         <div className="quest-hud">
           <div className="hud-item">
             <span className="hud-label">LEVEL</span>
-            <span className="hud-value" style={{ color: catColor }}>{info.label}</span>
+            <span className="hud-value" style={{ color: catColor, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <BrandIcon name={category} size={12} color={catColor} />
+              {info.label}
+            </span>
           </div>
           <div className="hud-item">
             <span className="hud-label">QUEST</span>
@@ -424,7 +429,10 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
         <div className="lesson-col-quest">
           <div className="quest-panel">
             <div className="quest-panel-header">
-              <h2>{info.label} QUEST {String(currentIndex + 1).padStart(2, '0')}</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BrandIcon name={category} size={15} color={catColor} />
+                {info.label} QUEST {String(currentIndex + 1).padStart(2, '0')}
+              </h2>
               <span className="quest-id-badge">#{lesson.id}</span>
             </div>
             <div className="quest-panel-body">
