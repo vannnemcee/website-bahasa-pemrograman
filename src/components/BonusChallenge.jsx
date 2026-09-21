@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { categoryIntro } from '../data/introData';
-import { soundRun, soundSuccess, soundClick, soundBack, soundHover } from '../utils/sounds';
+import { soundRun, soundSuccess, soundClick, soundBack, soundHover, soundTyping } from '../utils/sounds';
 import { runPythonCode } from '../utils/pythonRunner';
 import { runPhpCode } from '../utils/phpRunner';
 import { runTypeScriptCode } from '../utils/typescriptRunner';
@@ -267,6 +267,19 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   const lineCount = Math.max(lines.length, 6);
 
   const handleKeyDown = (e) => {
+    const IGNORED_KEYS = new Set([
+      'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape',
+      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+      'Home', 'End', 'PageUp', 'PageDown', 'Insert',
+      'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+    ]);
+
+    if (!IGNORED_KEYS.has(e.key)) {
+      if (soundEnabled) {
+        soundTyping(e.key);
+      }
+    }
+
     handleEditorKeyDown(e, code, (newVal) => {
       setCode(newVal);
       setError('');
@@ -274,6 +287,9 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
   };
 
   const handleSymbolClick = (sym) => {
+    if (soundEnabled) {
+      soundTyping(sym);
+    }
     insertEditorSymbol(sym, code, (newVal) => {
       setCode(newVal);
       setError('');
@@ -423,7 +439,7 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
             <div className="pixel-card-inner">
               <div className="editor-header">
                 <span className="editor-title">
-                  {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : 'script.js'}
+                  {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : category === 'javascript' ? 'script.js' : category === 'python' ? 'main.py' : category === 'php' ? 'index.php' : 'main.ts'}
                 </span>
                 <div className="editor-dots">
                   <div className="editor-dot red" />
@@ -461,7 +477,14 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                   ref={textareaRef}
                   className="editor-textarea"
                   value={code}
-                  onChange={(e) => { setCode(e.target.value); setError(''); }}
+                  onChange={(e) => {
+                    const nextVal = e.target.value;
+                    if (soundEnabled && nextVal !== code) {
+                      soundTyping();
+                    }
+                    setCode(nextVal);
+                    setError('');
+                  }}
                   onKeyDown={handleKeyDown}
                   spellCheck={false}
                   autoCorrect="off"
@@ -473,7 +496,9 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
                       category === 'html' ? '#FF8B9A' :
                       category === 'css' ? '#4CC9F0' :
                       category === 'javascript' ? '#FFD166' :
-                      '#4ADE80',
+                      category === 'python' ? '#4ADE80' :
+                      category === 'php' ? '#8892BF' :
+                      '#3178C6',
                   }}
                   placeholder={intro.bonusPlaceholder}
                   disabled={submitted}

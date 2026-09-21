@@ -1,7 +1,15 @@
 import React, { useRef } from 'react';
 import { handleEditorKeyDown, insertEditorSymbol } from '../utils/editorHelper';
+import { soundTyping } from '../utils/sounds';
 
-function CodeEditor({ value, onChange, category }) {
+const IGNORED_KEYS = new Set([
+  'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape',
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'Home', 'End', 'PageUp', 'PageDown', 'Insert',
+  'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+]);
+
+function CodeEditor({ value, onChange, category, soundEnabled = true }) {
   const textareaRef = useRef(null);
   const lines = value.split('\n');
   const lineCount = Math.max(lines.length, 5);
@@ -20,11 +28,27 @@ function CodeEditor({ value, onChange, category }) {
       : '// Ketik kode TypeScript kamu di sini';
 
   const handleKeyDown = (e) => {
+    if (!IGNORED_KEYS.has(e.key)) {
+      if (soundEnabled) {
+        soundTyping(e.key);
+      }
+    }
     handleEditorKeyDown(e, value, onChange, category, textareaRef);
   };
 
   const handleSymbolClick = (sym) => {
+    if (soundEnabled) {
+      soundTyping(sym);
+    }
     insertEditorSymbol(sym, value, onChange, textareaRef, category);
+  };
+
+  const handleChange = (e) => {
+    const nextVal = e.target.value;
+    if (soundEnabled && nextVal !== value) {
+      soundTyping();
+    }
+    onChange(nextVal);
   };
 
   const syntaxColor =
@@ -84,7 +108,7 @@ function CodeEditor({ value, onChange, category }) {
           ref={textareaRef}
           className="editor-textarea"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           spellCheck={false}

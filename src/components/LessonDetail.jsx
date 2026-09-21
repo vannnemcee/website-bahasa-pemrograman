@@ -698,6 +698,7 @@ function LessonDetail({ category, lesson, onBack, onComplete, completedLessons, 
               value={code}
               onChange={setCode}
               category={category}
+              soundEnabled={soundEnabled}
             />
 
             <div className="editor-footer">

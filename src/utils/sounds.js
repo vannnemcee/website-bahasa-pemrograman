@@ -206,3 +206,87 @@ export function soundLaunch() {
   synth(784, 'square', 0.09, 0.14, 0.12);
   synth(1046, 'sine', 0.18, 0.15, 0.18);
 }
+
+/**
+ * soundTyping — Mechanical keyboard / cyber tactile typing click
+ * Karakteristik:
+ * - Dihasilkan murni via Web Audio API tanpa beban file audio eksternal
+ * - Kombinasi transient snap (high-frequency click) + bottom-out body resonance
+ * - Pitch bervariasi dinamis per tombol (Space, Enter, Backspace, Tab, & variasi acak)
+ * - Volume lembut dan tidak memekakkan telinga (non-fatiguing)
+ */
+let lastTypeAudioTime = 0;
+
+export function soundTyping(key = '') {
+  try {
+    const c = getCtx();
+    if (!c) return;
+
+    const now = c.currentTime;
+    // Micro debounce (20ms) agar audio tidak distorsi/menumpuk saat fast typing
+    if (now - lastTypeAudioTime < 0.02) return;
+    lastTypeAudioTime = now;
+
+    // Variasi acak halus (+/- 7%) agar terasa seperti keyboard fisik sungguhan
+    const jitter = 0.93 + Math.random() * 0.14;
+
+    let clickFreq = 2100 * jitter;
+    let bodyFreq = 340 * jitter;
+    let volume = 0.042;
+    let duration = 0.026;
+
+    if (key === 'Enter') {
+      clickFreq = 1500;
+      bodyFreq = 220;
+      volume = 0.058;
+      duration = 0.036;
+    } else if (key === ' ' || key === 'Space') {
+      clickFreq = 1750;
+      bodyFreq = 250;
+      volume = 0.048;
+      duration = 0.032;
+    } else if (key === 'Backspace' || key === 'Delete') {
+      clickFreq = 2600 * jitter;
+      bodyFreq = 400;
+      volume = 0.044;
+      duration = 0.024;
+    } else if (key === 'Tab') {
+      clickFreq = 1900;
+      bodyFreq = 290;
+      volume = 0.048;
+      duration = 0.03;
+    }
+
+    // 1. Transient click (snappy tactile switch click)
+    const oscClick = c.createOscillator();
+    const gainClick = c.createGain();
+    oscClick.type = 'triangle';
+    oscClick.frequency.setValueAtTime(clickFreq, now);
+    oscClick.frequency.exponentialRampToValueAtTime(Math.max(180, clickFreq * 0.35), now + 0.012);
+
+    gainClick.gain.setValueAtTime(volume * 0.85, now);
+    gainClick.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+
+    oscClick.connect(gainClick);
+    gainClick.connect(c.destination);
+    oscClick.start(now);
+    oscClick.stop(now + 0.015);
+
+    // 2. Body resonance (subtle mechanical bottom-out thud)
+    const oscBody = c.createOscillator();
+    const gainBody = c.createGain();
+    oscBody.type = 'sine';
+    oscBody.frequency.setValueAtTime(bodyFreq, now);
+    oscBody.frequency.exponentialRampToValueAtTime(Math.max(70, bodyFreq * 0.45), now + duration);
+
+    gainBody.gain.setValueAtTime(volume * 0.65, now);
+    gainBody.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    oscBody.connect(gainBody);
+    gainBody.connect(c.destination);
+    oscBody.start(now);
+    oscBody.stop(now + duration + 0.004);
+  } catch {
+    // Ignore audio error
+  }
+}
