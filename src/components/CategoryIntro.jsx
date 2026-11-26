@@ -131,7 +131,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled, theme }) {
           {step === 1 && (
             <>
               <div>
-                <h2 className="page-title" style={{ fontSize: '16px' }}>
+                <h2 className="page-title" style={{ fontSize: '13px' }}>
                   Arti dan Fondasi {info.label}
                 </h2>
                 <p className="intro-prose">
@@ -162,7 +162,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled, theme }) {
           {step === 2 && (
             <>
               <div>
-                <h2 className="page-title" style={{ fontSize: '16px' }}>
+                <h2 className="page-title" style={{ fontSize: '13px' }}>
                   Fakta Penting Tentang {info.label}
                 </h2>
                 <p className="intro-prose">
@@ -191,7 +191,7 @@ function CategoryIntro({ category, onStart, onBack, soundEnabled, theme }) {
           {step === 3 && (
             <>
               <div>
-                <h2 className="page-title" style={{ fontSize: '16px' }}>
+                <h2 className="page-title" style={{ fontSize: '13px' }}>
                   Daftar Materi Latihan ({intro.whatYouLearn.length} Topik)
                 </h2>
                 <p className="intro-prose">

@@ -171,7 +171,7 @@ function BonusChallenge({
           </button>
         ) : (
           <div>
-            <h1 className="page-title" style={{ fontSize: '18px', marginBottom: 6 }}>
+            <h1 className="page-title" style={{ fontSize: '14px', marginBottom: 4 }}>
               Playground Kode
             </h1>
             <p className="page-subtitle">
