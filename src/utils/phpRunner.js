@@ -2,15 +2,241 @@
  * phpRunner.js — In-browser PHP simulator for educational coding quests
  */
 
+function stripPhpComments(code) {
+  let out = '';
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < code.length; i++) {
+    const ch = code[i];
+    const next = code[i + 1] || '';
+    const prev = i > 0 ? code[i - 1] : '';
+
+    if (ch === "'" && !inDouble && prev !== '\\') {
+      inSingle = !inSingle;
+      out += ch;
+    } else if (ch === '"' && !inSingle && prev !== '\\') {
+      inDouble = !inDouble;
+      out += ch;
+    } else if (!inSingle && !inDouble && ((ch === '/' && next === '/') || ch === '#')) {
+      while (i < code.length && code[i] !== '\n') i++;
+      out += '\n';
+    } else if (!inSingle && !inDouble && ch === '/' && next === '*') {
+      i += 2;
+      while (i < code.length && !(code[i] === '*' && code[i + 1] === '/')) i++;
+      i++;
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
+function splitTopLevel(str, separator) {
+  const parts = [];
+  let current = '';
+  let inQuotes = false;
+  let quoteChar = '';
+  let parenDepth = 0;
+  let braceDepth = 0;
+  let bracketDepth = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if ((char === '"' || char === "'") && (i === 0 || str[i - 1] !== '\\')) {
+      if (!inQuotes) {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (quoteChar === char) {
+        inQuotes = false;
+      }
+    }
+    if (!inQuotes) {
+      if (char === '(') parenDepth++;
+      else if (char === ')') parenDepth--;
+      else if (char === '{') braceDepth++;
+      else if (char === '}') braceDepth--;
+      else if (char === '[') bracketDepth++;
+      else if (char === ']') bracketDepth--;
+      else if (
+        str.slice(i, i + separator.length) === separator &&
+        parenDepth === 0 &&
+        braceDepth === 0 &&
+        bracketDepth === 0
+      ) {
+        // Do not split decimal numbers like 3.14 on '.'
+        const isDecimalDot =
+          separator === '.' &&
+          /\d$/.test(current) &&
+          /^\d/.test(str.slice(i + 1));
+        if (!isDecimalDot) {
+          parts.push(current.trim());
+          current = '';
+          i += separator.length - 1;
+          continue;
+        }
+      }
+    }
+    current += char;
+  }
+  if (current.trim() !== '') parts.push(current.trim());
+  return parts;
+}
+
+function parsePhpNodes(src) {
+  const nodes = [];
+  let i = 0;
+  const len = src.length;
+
+  function skipWs() {
+    while (i < len && /\s/.test(src[i])) i++;
+  }
+
+  function readBalanced(openCh, closeCh) {
+    let depth = 0;
+    let inSingle = false;
+    let inDouble = false;
+    const start = i;
+    while (i < len) {
+      const ch = src[i];
+      const prev = i > 0 ? src[i - 1] : '';
+      if (ch === "'" && !inDouble && prev !== '\\') inSingle = !inSingle;
+      else if (ch === '"' && !inSingle && prev !== '\\') inDouble = !inDouble;
+      else if (!inSingle && !inDouble) {
+        if (ch === openCh) depth++;
+        else if (ch === closeCh) {
+          depth--;
+          if (depth === 0) {
+            i++;
+            return src.slice(start + 1, i - 1);
+          }
+        }
+      }
+      i++;
+    }
+    return src.slice(start + 1);
+  }
+
+  while (i < len) {
+    skipWs();
+    if (i >= len) break;
+
+    const rest = src.slice(i);
+
+    // function name(params) { ... }
+    const fnMatch = rest.match(/^function\s+([a-zA-Z_]\w*)\s*\(/);
+    if (fnMatch) {
+      i += rest.indexOf('(');
+      const paramsRaw = readBalanced('(', ')');
+      skipWs();
+      if (src[i] === '{') {
+        const bodyRaw = readBalanced('{', '}');
+        nodes.push({
+          type: 'function',
+          name: fnMatch[1],
+          params: paramsRaw.split(',').map((p) => p.trim().replace(/^\$/, '')).filter(Boolean),
+          body: parsePhpNodes(bodyRaw),
+        });
+        continue;
+      }
+    }
+
+    // foreach (...) { ... }
+    if (/^foreach\s*\(/.test(rest)) {
+      i += rest.indexOf('(');
+      const condRaw = readBalanced('(', ')');
+      skipWs();
+      if (src[i] === '{') {
+        const bodyRaw = readBalanced('{', '}');
+        nodes.push({
+          type: 'foreach',
+          header: condRaw.trim(),
+          body: parsePhpNodes(bodyRaw),
+        });
+        continue;
+      }
+    }
+
+    // for (...) { ... }
+    if (/^for\s*\(/.test(rest)) {
+      i += rest.indexOf('(');
+      const condRaw = readBalanced('(', ')');
+      skipWs();
+      if (src[i] === '{') {
+        const bodyRaw = readBalanced('{', '}');
+        nodes.push({
+          type: 'for',
+          header: condRaw.trim(),
+          body: parsePhpNodes(bodyRaw),
+        });
+        continue;
+      }
+    }
+
+    // if (...) { ... } [else { ... }]
+    if (/^if\s*\(/.test(rest)) {
+      i += rest.indexOf('(');
+      const condRaw = readBalanced('(', ')');
+      skipWs();
+      let thenBody = [];
+      let elseBody = [];
+      if (src[i] === '{') {
+        thenBody = parsePhpNodes(readBalanced('{', '}'));
+      }
+      skipWs();
+      if (/^else\b/.test(src.slice(i))) {
+        i += 4;
+        skipWs();
+        if (src[i] === '{') {
+          elseBody = parsePhpNodes(readBalanced('{', '}'));
+        }
+      }
+      nodes.push({ type: 'if', cond: condRaw.trim(), thenBody, elseBody });
+      continue;
+    }
+
+    // Regular statement until ; or newline if omitted
+    let stmt = '';
+    let inSingle = false;
+    let inDouble = false;
+    let parenDepth = 0;
+    let bracketDepth = 0;
+    while (i < len) {
+      const ch = src[i];
+      const prev = i > 0 ? src[i - 1] : '';
+      if (ch === "'" && !inDouble && prev !== '\\') inSingle = !inSingle;
+      else if (ch === '"' && !inSingle && prev !== '\\') inDouble = !inDouble;
+      else if (!inSingle && !inDouble) {
+        if (ch === '(') parenDepth++;
+        else if (ch === ')') parenDepth--;
+        else if (ch === '[') bracketDepth++;
+        else if (ch === ']') bracketDepth--;
+        else if (ch === ';' && parenDepth === 0 && bracketDepth === 0) {
+          i++;
+          break;
+        } else if (ch === '\n' && parenDepth === 0 && bracketDepth === 0 && stmt.trim()) {
+          i++;
+          break;
+        }
+      }
+      stmt += ch;
+      i++;
+    }
+    if (stmt.trim()) {
+      nodes.push({ type: 'stmt', code: stmt.trim() });
+    }
+  }
+  return nodes;
+}
+
 export function runPhpCode(sourceCode) {
   const output = [];
   if (!sourceCode || !sourceCode.trim()) {
     return { output: [], error: null };
   }
 
-  // Pre-process: strip <?php and ?>
   let code = sourceCode.trim();
   code = code.replace(/^\s*<\?(?:php)?/i, '').replace(/\?>\s*$/i, '');
+  code = stripPhpComments(code);
 
   const variables = {};
   const functions = {};
@@ -19,10 +245,15 @@ export function runPhpCode(sourceCode) {
     let trimmed = expr.trim();
     if (!trimmed) return '';
 
-    // Handle concatenation with '.'
+    // Number literal (check before '.' concatenation so 3.14 stays 3.14)
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      return Number(trimmed);
+    }
+
+    // String concatenation with '.'
     const dotParts = splitTopLevel(trimmed, '.');
     if (dotParts.length > 1) {
-      return dotParts.map(p => String(evaluatePhpExpr(p))).join('');
+      return dotParts.map((p) => String(evaluatePhpExpr(p))).join('');
     }
 
     // String literal "..." or '...'
@@ -31,23 +262,18 @@ export function runPhpCode(sourceCode) {
       (trimmed.startsWith("'") && trimmed.endsWith("'"))
     ) {
       let content = trimmed.slice(1, -1);
-      // Replace inline variables in double quotes like "Halo $nama"
+      content = content.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
       if (trimmed.startsWith('"')) {
-        content = content.replace(/\$([a-zA-Z_]\w*)/g, (_, varName) => {
-          return variables[varName] !== undefined ? variables[varName] : '$' + varName;
-        });
+        content = content.replace(/\$([a-zA-Z_]\w*)/g, (_, varName) =>
+          variables[varName] !== undefined ? String(variables[varName]) : '$' + varName
+        );
       }
       return content;
     }
 
-    // Number literal
-    if (!isNaN(Number(trimmed)) && trimmed !== '') {
-      return Number(trimmed);
-    }
-
-    // Boolean
     if (trimmed.toLowerCase() === 'true') return true;
     if (trimmed.toLowerCase() === 'false') return false;
+    if (trimmed.toLowerCase() === 'null') return null;
 
     // Array: [...] or array(...)
     if (
@@ -58,63 +284,64 @@ export function runPhpCode(sourceCode) {
         ? trimmed.slice(1, -1).trim()
         : trimmed.slice(6, -1).trim();
       if (!itemsStr) return [];
-      const parts = splitTopLevel(itemsStr, ',');
-      return parts.map(p => evaluatePhpExpr(p));
+      return splitTopLevel(itemsStr, ',').map((p) => evaluatePhpExpr(p));
+    }
+
+    // Comparisons
+    const compOps = ['===', '!==', '==', '!=', '>=', '<=', '>', '<'];
+    for (const op of compOps) {
+      const parts = splitTopLevel(trimmed, op);
+      if (parts.length === 2) {
+        const left = evaluatePhpExpr(parts[0]);
+        const right = evaluatePhpExpr(parts[1]);
+        if (op === '===') return left === right;
+        if (op === '!==') return left !== right;
+        if (op === '==') return left == right;
+        if (op === '!=') return left != right;
+        if (op === '>=') return left >= right;
+        if (op === '<=') return left <= right;
+        if (op === '>') return left > right;
+        if (op === '<') return left < right;
+      }
+    }
+
+    // Math: + - * / %
+    for (const op of ['+', '-', '*', '/', '%']) {
+      const parts = splitTopLevel(trimmed, op);
+      if (parts.length === 2 && parts[0] !== '') {
+        const left = evaluatePhpExpr(parts[0]);
+        const right = evaluatePhpExpr(parts[1]);
+        if (op === '+') return Number(left) + Number(right);
+        if (op === '-') return Number(left) - Number(right);
+        if (op === '*') return Number(left) * Number(right);
+        if (op === '/') return Number(right) !== 0 ? Number(left) / Number(right) : 0;
+        if (op === '%') return Number(right) !== 0 ? Number(left) % Number(right) : 0;
+      }
+    }
+
+    // Array index: $arr[0]
+    const arrIdxMatch = trimmed.match(/^\$([a-zA-Z_]\w*)\[(.+)\]$/);
+    if (arrIdxMatch && Array.isArray(variables[arrIdxMatch[1]])) {
+      const idx = evaluatePhpExpr(arrIdxMatch[2]);
+      return variables[arrIdxMatch[1]][idx];
     }
 
     // Variable: $varName
-    if (trimmed.startsWith('$')) {
+    if (/^\$[a-zA-Z_]\w*$/.test(trimmed)) {
       const varName = trimmed.slice(1);
-      if (Object.prototype.hasOwnProperty.call(variables, varName)) {
-        return variables[varName];
-      }
-      return null;
+      return Object.prototype.hasOwnProperty.call(variables, varName) ? variables[varName] : null;
     }
 
-    // Binary Math: + - * / %
-    const mathOps = ['+', '-', '*', '/', '%'];
-    for (const op of mathOps) {
-      if (trimmed.includes(op)) {
-        const parts = splitTopLevel(trimmed, op);
-        if (parts.length === 2) {
-          const left = evaluatePhpExpr(parts[0]);
-          const right = evaluatePhpExpr(parts[1]);
-          if (typeof left === 'number' && typeof right === 'number') {
-            if (op === '+') return left + right;
-            if (op === '-') return left - right;
-            if (op === '*') return left * right;
-            if (op === '/') return right !== 0 ? left / right : 0;
-            if (op === '%') return right !== 0 ? left % right : 0;
-          }
-          if (op === '+') return String(left) + String(right);
-        }
-      }
-    }
-
-    // Comparison
-    const compOps = ['===', '!==', '==', '!=', '>=', '<=', '>', '<'];
-    for (const op of compOps) {
-      if (trimmed.includes(op)) {
-        const parts = splitTopLevel(trimmed, op);
-        if (parts.length === 2) {
-          const left = evaluatePhpExpr(parts[0]);
-          const right = evaluatePhpExpr(parts[1]);
-          if (op === '===' || op === '==') return left == right;
-          if (op === '!==' || op === '!=') return left != right;
-          if (op === '>=') return left >= right;
-          if (op === '<=') return left <= right;
-          if (op === '>') return left > right;
-          if (op === '<') return left < right;
-        }
-      }
-    }
-
-    // Function call: sapa($nama)
+    // Function call: count($x) or user function sapa($nama)
     const fnMatch = trimmed.match(/^([a-zA-Z_]\w*)\s*\((.*)\)$/s);
     if (fnMatch) {
       const fnName = fnMatch[1];
       const argsStr = fnMatch[2].trim();
-      const argValues = argsStr ? splitTopLevel(argsStr, ',').map(a => evaluatePhpExpr(a)) : [];
+      const argValues = argsStr ? splitTopLevel(argsStr, ',').map((a) => evaluatePhpExpr(a)) : [];
+      if (fnName === 'count') return Array.isArray(argValues[0]) ? argValues[0].length : 0;
+      if (fnName === 'strlen') return String(argValues[0] ?? '').length;
+      if (fnName === 'strtoupper') return String(argValues[0] ?? '').toUpperCase();
+      if (fnName === 'strtolower') return String(argValues[0] ?? '').toLowerCase();
       if (functions[fnName]) {
         return executeFunction(functions[fnName], argValues);
       }
@@ -125,176 +352,98 @@ export function runPhpCode(sourceCode) {
 
   function executeFunction(fnDef, argValues) {
     const prevVars = { ...variables };
-    fnDef.paramNames.forEach((name, i) => {
-      variables[name] = argValues[i] !== undefined ? argValues[i] : null;
+    fnDef.params.forEach((name, idx) => {
+      variables[name] = argValues[idx] !== undefined ? argValues[idx] : null;
     });
-
-    let returnVal = null;
-    for (const statement of fnDef.bodyStatements) {
-      if (statement.startsWith('return ')) {
-        const retExpr = statement.slice(7).trim();
-        returnVal = evaluatePhpExpr(retExpr);
-        break;
-      }
-      executeStatement(statement);
-    }
-
-    Object.keys(variables).forEach(k => delete variables[k]);
+    const res = executeNodes(fnDef.body);
+    Object.keys(variables).forEach((k) => delete variables[k]);
     Object.assign(variables, prevVars);
-    return returnVal;
+    return res.returned ? res.value : null;
   }
 
-  function splitTopLevel(str, separator) {
-    const parts = [];
-    let current = '';
-    let inQuotes = false;
-    let quoteChar = '';
-    let parenDepth = 0;
-    let braceDepth = 0;
-    let bracketDepth = 0;
+  function executeStatement(stmt) {
+    if (!stmt) return { returned: false };
 
-    for (let i = 0; i < str.length; i++) {
-      const char = str[i];
-      if ((char === '"' || char === "'") && (i === 0 || str[i - 1] !== '\\')) {
-        if (!inQuotes) {
-          inQuotes = true;
-          quoteChar = char;
-        } else if (quoteChar === char) {
-          inQuotes = false;
-        }
-      }
-      if (!inQuotes) {
-        if (char === '(') parenDepth++;
-        else if (char === ')') parenDepth--;
-        else if (char === '{') braceDepth++;
-        else if (char === '}') braceDepth--;
-        else if (char === '[') bracketDepth++;
-        else if (char === ']') bracketDepth--;
-        else if (
-          str.slice(i, i + separator.length) === separator &&
-          parenDepth === 0 &&
-          braceDepth === 0 &&
-          bracketDepth === 0
-        ) {
-          parts.push(current.trim());
-          current = '';
-          i += separator.length - 1;
-          continue;
-        }
-      }
-      current += char;
+    if (stmt === 'return' || stmt.startsWith('return ')) {
+      const expr = stmt.slice(6).trim();
+      return { returned: true, value: expr ? evaluatePhpExpr(expr) : null };
     }
-    if (current.trim()) parts.push(current.trim());
-    return parts;
-  }
 
-  function executeStatement(line) {
-    let stmt = line.trim();
-    if (!stmt || stmt.startsWith('//') || stmt.startsWith('#')) return;
-    if (stmt.endsWith(';')) stmt = stmt.slice(0, -1).trim();
-
-    // echo or print
     if (stmt.startsWith('echo ') || stmt.startsWith('print ')) {
       const expr = stmt.replace(/^(echo|print)\s+/, '');
       const val = evaluatePhpExpr(expr);
-      output.push(String(val));
-      return;
+      const str = Array.isArray(val) ? `[${val.join(', ')}]` : String(val ?? '');
+      str.split('\n').forEach((line, idx, arr) => {
+        if (idx === arr.length - 1 && line === '' && arr.length > 1) return;
+        output.push(line);
+      });
+      return { returned: false };
     }
 
-    // Variable assignment: $var = expr
+    // $i++ or $i--
+    const incMatch = stmt.match(/^\$([a-zA-Z_]\w*)(\+\+|--)$/);
+    if (incMatch) {
+      const [, name, op] = incMatch;
+      variables[name] = (Number(variables[name]) || 0) + (op === '++' ? 1 : -1);
+      return { returned: false };
+    }
+
+    // Assignment: $var = expr
     if (stmt.startsWith('$')) {
       const eqIdx = stmt.indexOf('=');
       if (eqIdx !== -1) {
         const varName = stmt.slice(1, eqIdx).trim();
         const expr = stmt.slice(eqIdx + 1).trim();
         variables[varName] = evaluatePhpExpr(expr);
-        return;
+        return { returned: false };
       }
     }
+
+    evaluatePhpExpr(stmt);
+    return { returned: false };
+  }
+
+  function executeNodes(nodes) {
+    for (const node of nodes) {
+      if (node.type === 'function') {
+        functions[node.name] = { params: node.params, body: node.body };
+      } else if (node.type === 'if') {
+        const condVal = Boolean(evaluatePhpExpr(node.cond));
+        const res = executeNodes(condVal ? node.thenBody : node.elseBody);
+        if (res.returned) return res;
+      } else if (node.type === 'foreach') {
+        const feMatch = node.header.match(/^\$([a-zA-Z_]\w*)\s+as\s+\$([a-zA-Z_]\w*)$/);
+        if (feMatch) {
+          const arr = Array.isArray(variables[feMatch[1]]) ? variables[feMatch[1]] : [];
+          for (const val of arr) {
+            variables[feMatch[2]] = val;
+            const res = executeNodes(node.body);
+            if (res.returned) return res;
+          }
+        }
+      } else if (node.type === 'for') {
+        const parts = node.header.split(';').map((s) => s.trim());
+        if (parts.length === 3) {
+          executeStatement(parts[0]);
+          let guard = 0;
+          while (Boolean(evaluatePhpExpr(parts[1])) && guard < 200) {
+            guard++;
+            const res = executeNodes(node.body);
+            if (res.returned) return res;
+            executeStatement(parts[2]);
+          }
+        }
+      } else if (node.type === 'stmt') {
+        const res = executeStatement(node.code);
+        if (res.returned) return res;
+      }
+    }
+    return { returned: false };
   }
 
   try {
-    // Process code blocks like if, foreach, functions
-    const lines = code.split('\n');
-    let i = 0;
-    while (i < lines.length) {
-      let line = lines[i].trim();
-      if (!line || line.startsWith('//') || line.startsWith('#')) {
-        i++;
-        continue;
-      }
-
-      // Function definition: function sapa($nama) { ... }
-      if (line.startsWith('function ')) {
-        const headerMatch = line.match(/function\s+([a-zA-Z_]\w*)\s*\(([^)]*)\)/);
-        if (headerMatch) {
-          const fnName = headerMatch[1];
-          const rawParams = headerMatch[2].split(',').map(p => p.trim().replace(/^\$/, '')).filter(Boolean);
-          const bodyStatements = [];
-          i++;
-          while (i < lines.length && !lines[i].includes('}')) {
-            const bodyLine = lines[i].trim().replace(/;$/, '');
-            if (bodyLine) bodyStatements.push(bodyLine);
-            i++;
-          }
-          functions[fnName] = { paramNames: rawParams, bodyStatements };
-          i++;
-          continue;
-        }
-      }
-
-      // Foreach loop: foreach ($buah as $item) { ... }
-      if (line.startsWith('foreach')) {
-        const feMatch = line.match(/foreach\s*\(\s*\$([a-zA-Z_]\w*)\s+as\s+\$([a-zA-Z_]\w*)\s*\)/);
-        if (feMatch) {
-          const arrName = feMatch[1];
-          const itemVar = feMatch[2];
-          const arr = Array.isArray(variables[arrName]) ? variables[arrName] : [];
-          const loopLines = [];
-          i++;
-          while (i < lines.length && !lines[i].includes('}')) {
-            const l = lines[i].trim();
-            if (l) loopLines.push(l);
-            i++;
-          }
-          for (const val of arr) {
-            variables[itemVar] = val;
-            for (const l of loopLines) {
-              executeStatement(l);
-            }
-          }
-          i++;
-          continue;
-        }
-      }
-
-      // If statement: if (...) { ... }
-      if (line.startsWith('if')) {
-        const condMatch = line.match(/if\s*\((.*)\)/);
-        if (condMatch) {
-          const cond = evaluatePhpExpr(condMatch[1]);
-          const ifLines = [];
-          i++;
-          while (i < lines.length && !lines[i].includes('}')) {
-            const l = lines[i].trim();
-            if (l) ifLines.push(l);
-            i++;
-          }
-          if (cond) {
-            for (const l of ifLines) {
-              executeStatement(l);
-            }
-          }
-          i++;
-          continue;
-        }
-      }
-
-      // Single statements ending in ;
-      executeStatement(line);
-      i++;
-    }
-
+    const ast = parsePhpNodes(code);
+    executeNodes(ast);
     return { output, error: null };
   } catch (err) {
     return { output, error: err.message };

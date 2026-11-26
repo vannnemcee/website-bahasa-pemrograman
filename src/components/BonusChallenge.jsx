@@ -1,320 +1,147 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import { ArrowLeft, Play, RotateCcw, CheckCircle2, FileCode2 } from 'lucide-react';
 import { categoryIntro } from '../data/introData';
-import { soundRun, soundSuccess, soundClick, soundBack, soundHover, soundTyping } from '../utils/sounds';
-import { runPythonCode } from '../utils/pythonRunner';
-import { runPhpCode } from '../utils/phpRunner';
-import { runTypeScriptCode } from '../utils/typescriptRunner';
-import { handleEditorKeyDown, insertEditorSymbol } from '../utils/editorHelper';
-import { Code2, Play } from 'lucide-react';
+import { categoryInfo } from '../data/lessons';
+import CodeEditor from './CodeEditor';
+import CodePreview from './CodePreview';
 import BrandIcon from './BrandIcon';
+import { soundRun, soundSuccess, soundClick, soundBack } from '../utils/sounds';
 
-/* ===== HTML Preview for bonus ===== */
-function HTMLBonusPreview({ code }) {
-  const isFullDoc = code.toLowerCase().includes('<!doctype') || code.toLowerCase().includes('<html');
-  const srcDoc = isFullDoc
-    ? code
-    : `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <style>
-      body {
-        margin: 16px;
-        font-family: Arial, sans-serif;
-        font-size: 16px;
-        color: #111;
-        background: #ffffff;
-      }
-      h1 { font-size: 2em; margin: 0.2em 0; }
-      h2 { font-size: 1.5em; margin: 0.2em 0; }
-      h3 { font-size: 1.2em; }
-      p  { margin: 0.4em 0; }
-      button { padding: 6px 14px; cursor: pointer; font-size: 14px; }
-      a  { color: #0066cc; }
-      img { max-width: 100%; }
-    </style>
-  </head>
-  <body>${code || '<p style="color:#888; font-style:italic;">Ketik kode HTML di sebelah kiri untuk melihat hasil di sini...</p>'}</body>
-</html>`;
+const PLAYGROUND_SAMPLES = {
+  html: `<h1>Halo Dunia</h1>\n<p>Ini adalah halaman web pertamaku.</p>\n<button>Klik Saya</button>`,
+  css: `color: #f8fafc;\nbackground-color: #0284c7;\nborder: 2px solid #38bdf8;\nborder-radius: 10px;\npadding: 18px 28px;`,
+  javascript: `const nama = "Budi";\nfor (let i = 1; i <= 3; i++) {\n  console.log("Langkah " + i + ": Halo " + nama);\n}`,
+  typescript: `interface Siswa {\n  nama: string;\n  nilai: number;\n}\n\nconst murid: Siswa = { nama: "Siti", nilai: 94 };\nconsole.log(\`\${murid.nama}: \${murid.nilai}\`);`,
+  python: `buah = ["Apel", "Jeruk", "Mangga"]\nfor item in buah:\n    print("Buah:", item)`,
+  php: `<?php\n$nama = "Budi";\nfor ($i = 1; $i <= 3; $i++) {\n  echo "Baris $i - Halo " . $nama;\n}\n?>`,
+  java: `public class Main {\n  public static void main(String[] args) {\n    String bahasa = "Java";\n    for (int i = 1; i <= 3; i++) {\n      System.out.println(i + ". Belajar " + bahasa);\n    }\n  }\n}`,
+  cpp: `#include <iostream>\nusing namespace std;\n\nint main() {\n  for (int i = 1; i <= 3; i++) {\n    cout << "Iterasi " << i << endl;\n  }\n  return 0;\n}`,
+  go: `package main\nimport "fmt"\n\nfunc main() {\n  bahasa := []string{"Go", "Cepat", "Ringkas"}\n  for i, kata := range bahasa {\n    fmt.Println(i, kata)\n  }\n}`,
+  sql: `SELECT nama, kelas, nilai\nFROM siswa\nWHERE nilai >= 80\nORDER BY nilai DESC;`,
+};
 
-  return (
-    <iframe
-      title="html-bonus-preview"
-      srcDoc={srcDoc}
-      style={{ width: '100%', minHeight: '160px', border: 'none', display: 'block', background: 'white' }}
-      sandbox="allow-scripts"
-    />
+const BONUS_TIPS = {
+  html: [
+    '<h1> sampai <h6> untuk judul dokumen',
+    '<p>, <ul>/<li>, dan <a href="#"> untuk konten dan tautan',
+    '<button> dan <input placeholder="..."> untuk elemen interaktif',
+  ],
+  css: [
+    'color dan background-color untuk warna teks dan latar',
+    'padding, margin, dan border untuk jarak serta bingkai',
+    'border-radius dan box-shadow untuk bentuk dan kedalaman elemen',
+  ],
+  javascript: [
+    'let / const untuk mendeklarasikan variabel',
+    'console.log(...) untuk menampilkan output ke konsol',
+    'if, for, dan function untuk mengatur alur logika',
+  ],
+  typescript: [
+    'Tentukan tipe variabel: let nama: string = "Budi"',
+    'Gunakan interface untuk mendefinisikan struktur objek',
+    'Tambahkan tipe parameter dan kembalian pada function',
+  ],
+  python: [
+    'print(...) untuk menampilkan teks atau hasil hitungan',
+    'Gunakan indentasi 4 spasi di dalam if, for, dan def',
+    'Gunakan f-string: f"Halo {nama}" untuk menyisipkan variabel',
+  ],
+  php: [
+    'Awali blok skrip dengan <?php dan akhiri dengan ?>',
+    'Gunakan $ di depan setiap nama variabel, misalnya $nama',
+    'Gunakan echo dan operator titik (.) untuk menggabung teks',
+  ],
+  java: [
+    'System.out.println(...) untuk mencetak baris output',
+    'Tulis kode utama di dalam public static void main(String[] args)',
+    'Deklarasikan tipe variabel secara eksplisit seperti int atau String',
+  ],
+  cpp: [
+    'Sertakan #include <iostream> dan using namespace std;',
+    'Gunakan cout << nilai << endl; untuk mencetak ke terminal',
+    'Tulis program utama di dalam fungsi int main()',
+  ],
+  go: [
+    'Gunakan fmt.Println(...) untuk mencetak hasil ke terminal',
+    'Gunakan := untuk mendeklarasikan variabel secara ringkas',
+    'Gunakan for atau for ... range untuk perulangan',
+  ],
+  sql: [
+    'Tabel tersedia di sandbox: siswa dan produk',
+    'Gunakan SELECT kolom FROM siswa WHERE nilai >= 80;',
+    'Gunakan ORDER BY, LIMIT, INSERT, UPDATE, atau DELETE',
+  ],
+};
+
+function BonusChallenge({
+  mode = 'bonus',
+  category: initialCategory = 'javascript',
+  onBack,
+  onComplete,
+  completedLessons = [],
+  soundEnabled = true,
+  theme = 'dark',
+}) {
+  const isPlayground = mode === 'playground';
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+
+  const activeKey = isPlayground ? `playground-${activeCategory}` : `${activeCategory}-bonus`;
+  const isAlreadyCompleted = !isPlayground && completedLessons.includes(activeKey);
+
+  const [code, setCode] = useState(() =>
+    isPlayground ? PLAYGROUND_SAMPLES[initialCategory] || '' : ''
   );
-}
-
-/* ===== CSS Preview for bonus ===== */
-function CSSBonusPreview({ code }) {
-  const srcDoc = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 160px; background: #111827; font-family: Arial, sans-serif; }
-          .box { font-size: 18px; font-weight: bold; padding: 16px 32px; transition: all 0.3s ease; ${code} }
-        </style>
-      </head>
-      <body><div class="box">HELLO PIXEL — Desain Bebas!</div></body>
-    </html>
-  `;
-  return (
-    <iframe
-      title="css-bonus-preview"
-      srcDoc={srcDoc}
-      style={{ width: '100%', minHeight: '160px', border: 'none', display: 'block', background: '#111827' }}
-      sandbox="allow-scripts"
-    />
-  );
-}
-
-/* ===== JS Preview for bonus ===== */
-function JSBonusPreview({ code, runKey }) {
-  const srcDoc = `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <style>
-      body { margin: 0; padding: 12px; background: #0d0d1a; font-family: 'Courier New', monospace; font-size: 13px; color: #63f5a8; }
-      .log-line { padding: 3px 0; border-bottom: 1px solid #1a1a2e; word-break: break-all; }
-      .log-line.error { color: #ff667d; }
-      .empty-hint { color: #555; font-style: italic; }
-    </style>
-  </head>
-  <body>
-    <div id="output">
-      ${!code.trim() ? '<div class="empty-hint">&gt; Ketik kode JavaScript di sebelah kiri lalu klik JALANKAN JS...</div>' : ''}
-    </div>
-    <script>
-      var out = document.getElementById('output');
-      var origLog = console.log;
-      console.log = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var line = document.createElement('div');
-        line.className = 'log-line';
-        line.textContent = '> ' + args.join(' ');
-        out.appendChild(line);
-        origLog.apply(console, args);
-      };
-      try {
-        ${code}
-      } catch(e) {
-        var errLine = document.createElement('div');
-        errLine.className = 'log-line error';
-        errLine.textContent = 'Error: ' + e.message;
-        out.appendChild(errLine);
-      }
-    </script>
-  </body>
-</html>`;
-
-  return (
-    <iframe
-      key={runKey}
-      title="js-bonus-preview"
-      srcDoc={srcDoc}
-      style={{ minHeight: '160px', width: '100%', border: 'none', display: 'block', background: '#0d0d1a' }}
-      sandbox="allow-scripts allow-modals"
-    />
-  );
-}
-
-/* ===== Python Preview for bonus ===== */
-function PythonBonusPreview({ code, runKey }) {
-  const { output, error } = runPythonCode(code);
-  return (
-    <div
-      key={runKey}
-      style={{
-        padding: '14px',
-        background: '#09090b',
-        fontFamily: "'Courier New', monospace",
-        fontSize: '11px',
-        minHeight: '140px',
-      }}
-    >
-      <div style={{ color: '#71717a', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
-        $ python3 main.py (Live Terminal)
-      </div>
-      {!code.trim() && (
-        <div style={{ color: '#52525b', fontStyle: 'italic', fontSize: '9px' }}>
-          Ketik kode Python di sebelah kiri lalu klik JALANKAN PYTHON...
-        </div>
-      )}
-      {output.map((line, idx) => (
-        <div key={idx} style={{ color: '#4ADE80', lineHeight: 1.6, wordBreak: 'break-all' }}>
-          &gt; {line}
-        </div>
-      ))}
-      {error && (
-        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
-          {error}
-        </div>
-      )}
-      {code.trim() && (
-        <div style={{ marginTop: '10px', color: '#52525b', fontSize: '8px' }}>
-          [Program dijalankan dengan sukses]
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ===== PHP Preview for bonus ===== */
-function PHPBonusPreview({ code, runKey }) {
-  const { output, error } = runPhpCode(code);
-  return (
-    <div
-      key={runKey}
-      style={{
-        padding: '14px',
-        background: '#0c0d1c',
-        fontFamily: "'Courier New', monospace",
-        fontSize: '11px',
-        minHeight: '140px',
-      }}
-    >
-      <div style={{ color: '#8892BF', fontSize: '9px', marginBottom: '8px', letterSpacing: '0.05em' }}>
-        $ php -f index.php (Live PHP Engine)
-      </div>
-      {!code.trim() && (
-        <div style={{ color: '#6366f1', fontStyle: 'italic', fontSize: '9px' }}>
-          Ketik skrip PHP di sebelah kiri lalu klik JALANKAN PHP...
-        </div>
-      )}
-      {output.map((line, idx) => (
-        <div key={idx} style={{ color: '#A5B4FC', lineHeight: 1.6, wordBreak: 'break-all' }}>
-          &gt; {line}
-        </div>
-      ))}
-      {error && (
-        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
-          Fatal error: {error}
-        </div>
-      )}
-      {code.trim() && (
-        <div style={{ marginTop: '10px', color: '#4338ca', fontSize: '8px' }}>
-          [PHP Response 200 OK]
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ===== TypeScript Preview for bonus ===== */
-function TypeScriptBonusPreview({ code, runKey }) {
-  const { output, typeCheck, error } = runTypeScriptCode(code);
-  return (
-    <div
-      key={runKey}
-      style={{
-        padding: '14px',
-        background: '#080e1a',
-        fontFamily: "'Courier New', monospace",
-        fontSize: '11px',
-        minHeight: '140px',
-      }}
-    >
-      <div style={{ color: '#60A5FA', fontSize: '9px', marginBottom: '6px', letterSpacing: '0.05em' }}>
-        $ tsc main.ts &amp;&amp; node main.js (Live Transpiler)
-      </div>
-      <div style={{ color: error ? '#ff667d' : '#38bdf8', fontSize: '8px', marginBottom: '8px' }}>
-        [{typeCheck}]
-      </div>
-      {!code.trim() && (
-        <div style={{ color: '#38bdf8', fontStyle: 'italic', fontSize: '9px' }}>
-          Ketik kode TypeScript di sebelah kiri lalu klik JALANKAN TS...
-        </div>
-      )}
-      {output.map((line, idx) => (
-        <div key={idx} style={{ color: '#93C5FD', lineHeight: 1.6, wordBreak: 'break-all' }}>
-          &gt; {line}
-        </div>
-      ))}
-      {error && (
-        <div style={{ color: '#ff667d', marginTop: '6px', fontSize: '9px', lineHeight: 1.5 }}>
-          TypeScript Error: {error}
-        </div>
-      )}
-      {code.trim() && !error && (
-        <div style={{ marginTop: '10px', color: '#1e3a8a', fontSize: '8px' }}>
-          [Type check passed &amp; runtime finished]
-        </div>
-      )}
-    </div>
-  );
-}
-
-function BonusChallenge({ category, onBack, onComplete, completedLessons, soundEnabled }) {
-  const textareaRef = useRef(null);
-  const intro = categoryIntro[category];
-  const bonusKey = `${category}-bonus`;
-  const isAlreadyCompleted = completedLessons.includes(bonusKey);
-
-  // Mulai kosong agar pengguna bisa mengetik sendiri dari awal
-  const [code, setCode] = useState('');
   const [submitted, setSubmitted] = useState(isAlreadyCompleted);
   const [error, setError] = useState('');
   const [runKey, setRunKey] = useState(0);
-  const [mobileTab, setMobileTab] = useState('editor'); // 'editor' | 'preview'
+  const [hasRun, setHasRun] = useState(isPlayground);
 
-  const catColor = intro.color;
-  const lines = code.split('\n');
-  const lineCount = Math.max(lines.length, 6);
+  const info = categoryInfo[activeCategory] || categoryInfo.html;
+  const intro = categoryIntro[activeCategory] || categoryIntro.html;
+  const accentColor = theme === 'light' ? info.color : (info.colorDark || info.color);
 
-  const handleKeyDown = (e) => {
-    const IGNORED_KEYS = new Set([
-      'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape',
-      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-      'Home', 'End', 'PageUp', 'PageDown', 'Insert',
-      'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
-    ]);
-
-    if (!IGNORED_KEYS.has(e.key)) {
-      if (soundEnabled) {
-        soundTyping(e.key);
-      }
-    }
-
-    handleEditorKeyDown(e, code, (newVal) => {
-      setCode(newVal);
-      setError('');
-    }, category, textareaRef);
-  };
-
-  const handleSymbolClick = (sym) => {
-    if (soundEnabled) {
-      soundTyping(sym);
-    }
-    insertEditorSymbol(sym, code, (newVal) => {
-      setCode(newVal);
-      setError('');
-    }, textareaRef, category);
-  };
+  function handleSwitchLanguage(cat) {
+    if (soundEnabled) soundClick();
+    setActiveCategory(cat);
+    setCode(PLAYGROUND_SAMPLES[cat] || '');
+    setError('');
+    setRunKey((k) => k + 1);
+    setHasRun(true);
+  }
 
   function handleRun() {
     if (soundEnabled) soundRun();
     setRunKey((k) => k + 1);
+    setHasRun(true);
+    setError('');
+  }
+
+  function handleLoadSample() {
+    if (soundEnabled) soundClick();
+    setCode(PLAYGROUND_SAMPLES[activeCategory] || intro.bonusPlaceholder || '');
+    setError('');
+    setRunKey((k) => k + 1);
+    setHasRun(true);
   }
 
   function handleSubmit() {
     if (soundEnabled) soundRun();
-    const trimmed = code.replace(/\s+/g, '').replace(/<!--.*?-->/g, '').replace(/\/\*.*?\*\//g, '');
+    const trimmed = code
+      .replace(/\s+/g, '')
+      .replace(/<!--.*?-->/g, '')
+      .replace(/\/\*.*?\*\//g, '');
+
     if (trimmed.length < 5) {
-      setError('Ketik kodemu terlebih dahulu sebelum submit!');
+      setError('Tulis minimal beberapa baris kode sebelum mengumpulkan tugas bebas.');
       return;
     }
+
     setError('');
-    if (category === 'javascript') {
-      setRunKey((k) => k + 1);
-    }
-    if (soundEnabled) setTimeout(() => soundSuccess(), 200);
+    setRunKey((k) => k + 1);
+    setHasRun(true);
     setSubmitted(true);
-    onComplete(bonusKey);
+    if (onComplete) onComplete(activeKey);
+    if (soundEnabled) setTimeout(() => soundSuccess(), 180);
   }
 
   function handleReset() {
@@ -322,324 +149,197 @@ function BonusChallenge({ category, onBack, onComplete, completedLessons, soundE
     setSubmitted(false);
     setCode('');
     setError('');
+    setHasRun(false);
   }
 
-  const mobileSymbols =
-    category === 'html'
-      ? ['<', '>', '/', '=', '"', "'", '!', '-', 'TAB']
-      : category === 'css'
-      ? [':', ';', '{', '}', '#', '%', 'px', 'TAB']
-      : category === 'javascript'
-      ? ['(', ')', '{', '}', ';', '=', '"', "'", '+', '>', 'TAB']
-      : category === 'python'
-      ? ['(', ')', ':', '=', '"', "'", '+', '-', '*', '#', '[', ']', 'TAB']
-      : category === 'php'
-      ? ['$', '(', ')', '{', '}', ';', '=', '"', "'", '.', '>', 'TAB']
-      : [':', ';', '(', ')', '{', '}', '<', '>', '=', '"', '?', 'TAB'];
+  const tips = BONUS_TIPS[activeCategory] || [];
 
   return (
-    <div className="bonus-screen">
-      {/* Header */}
-      <div className="lesson-detail-header">
-        <button
-          className="btn btn-ghost"
-          onClick={() => { if (soundEnabled) soundBack(); onBack(); }}
-        >
-          ← BACK
-        </button>
-        <div className="quest-hud">
-          <div className="hud-item">
-            <span className="hud-label">LEVEL</span>
-            <span className="hud-value" style={{ color: catColor, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-              <BrandIcon name={category} size={12} color={catColor} />
-              {category.toUpperCase()}
-            </span>
-          </div>
-          <div className="hud-item">
-            <span className="hud-label">TIPE</span>
-            <span className="hud-value" style={{ color: catColor }}>TUGAS BEBAS</span>
-          </div>
-          <div className="hud-item">
-            <span className="hud-label">STATUS</span>
-            <span className="hud-value" style={{ color: submitted ? 'var(--color-green)' : 'var(--color-yellow)' }}>
-              {submitted ? 'SELESAI' : 'OPEN'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Hero */}
-      <div className="bonus-hero" style={{ borderColor: catColor }}>
-        <div className="bonus-badge" style={{ background: catColor, color: '#080C16' }}>
-          ★ {intro.bonusTitle}
-        </div>
-        <h2 className="bonus-title">{intro.bonusTitle}</h2>
-        <p className="bonus-instruction">{intro.bonusInstruction}</p>
-        <p style={{ fontSize: '8px', color: 'var(--color-gray-light)', marginTop: '8px' }}>
-          💡 Editor di bawah sengaja dikosongkan. Silakan berkreasi dan ketik kodemu sendiri sesuka hati!
-        </p>
-      </div>
-
-      {/* Completed Banner */}
-      {submitted && (
-        <div className="bonus-completed-banner">
-          <span style={{ fontSize: '18px' }}>🎉</span>
-          <div>
-            <strong>KARYA BEBAS BERHASIL DIKUMPULKAN!</strong><br />
-            Hebat! Kamu telah berhasil menyelesaikan tugas bebas {category.toUpperCase()}.<br />
-            <span style={{ fontSize: '7px', color: 'var(--color-gray-light)' }}>
-              Kamu bisa terus mengedit dan menekan Reset jika ingin membuat karya baru.
-            </span>
-          </div>
-          <button className="btn btn-secondary" onClick={handleReset} style={{ marginLeft: 'auto', fontSize: '8px' }}>
-            RESET / BUAT BARU
+    <div className="lesson-detail-screen">
+      <div className="lesson-detail-topbar">
+        {!isPlayground ? (
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              if (soundEnabled) soundBack();
+              onBack();
+            }}
+          >
+            <ArrowLeft size={15} />
+            <span>Daftar Misi</span>
           </button>
+        ) : (
+          <div>
+            <h1 className="page-title" style={{ fontSize: '18px', marginBottom: 6 }}>
+              Playground Kode
+            </h1>
+            <p className="page-subtitle">
+              Uji dan jalankan kode dari 10 bahasa pemrograman langsung di browser tanpa perlu setup.
+            </p>
+          </div>
+        )}
+
+        {!isPlayground && (
+          <div className="lesson-meta-inline">
+            <BrandIcon name={activeCategory} size={16} color={accentColor} />
+            <strong style={{ color: 'var(--text-primary)' }}>{intro.bonusTitle}</strong>
+            <span>&middot;</span>
+            <span className={`lesson-status-text ${submitted ? 'cleared' : 'learning'}`}>
+              {submitted ? 'Selesai' : 'Ruang Kreasi'}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {isPlayground && (
+        <div className="playground-lang-bar" role="tablist" aria-label="Pilih bahasa playground">
+          {Object.keys(categoryInfo).map((cat) => {
+            const catInfo = categoryInfo[cat];
+            const catAccent = theme === 'light' ? catInfo.color : (catInfo.colorDark || catInfo.color);
+            return (
+              <button
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === cat}
+                className={`playground-lang-btn ${activeCategory === cat ? 'active' : ''}`}
+                onClick={() => handleSwitchLanguage(cat)}
+              >
+                <BrandIcon name={cat} size={14} color={catAccent} />
+                <span>{catInfo.label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Mobile Tab Switcher */}
-      <div className="mobile-lesson-tabs">
-        <button
-          type="button"
-          className={`mobile-tab-btn ${mobileTab === 'editor' ? 'active' : ''}`}
-          onClick={() => {
-            if (soundEnabled) soundClick();
-            setMobileTab('editor');
-          }}
-          onMouseEnter={() => {
-            if (soundEnabled) soundHover();
-          }}
-        >
-          <Code2 size={13} className="tab-icon" />
-          <span>EDITOR KODE</span>
-          {mobileTab === 'editor' && <span className="tab-active-dot" style={{ backgroundColor: 'var(--color-blue)' }} />}
-        </button>
-        <button
-          type="button"
-          className={`mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
-          onClick={() => {
-            if (soundEnabled) soundClick();
-            setMobileTab('preview');
-          }}
-          onMouseEnter={() => {
-            if (soundEnabled) soundHover();
-          }}
-        >
-          <Play size={13} className="tab-icon" />
-          <span>LIVE PREVIEW & TIPS</span>
-          {mobileTab === 'preview' && <span className="tab-active-dot" style={{ backgroundColor: 'var(--color-green)' }} />}
-        </button>
-      </div>
+      {!isPlayground && (
+        <div className="progress-section">
+          <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+            {intro.bonusTitle}
+          </div>
+          <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)' }}>
+            {intro.bonusInstruction}
+          </p>
+          {submitted && (
+            <div className="inline-feedback success" style={{ marginTop: 6 }}>
+              <CheckCircle2 size={18} style={{ color: 'var(--status-success)', flexShrink: 0 }} />
+              <span>
+                Karya bebas {info.label} berhasil dikumpulkan. Tekan Reset jika ingin membuat eksperimen baru.
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Main split */}
-      <div className={`lesson-layout mobile-tab-${mobileTab}`}>
-        {/* Left: Editor */}
-        <div className="lesson-col-editor">
+      <div className="lesson-layout">
+        {/* Left column: Editor */}
+        <div className="lesson-col-editor" style={{ gridColumn: 'span 1' }}>
           <div className="editor-panel">
-            <div className="pixel-card-inner">
-              <div className="editor-header">
-                <span className="editor-title">
-                  {category.toUpperCase()} FREE EDITOR — {category === 'html' ? 'index.html' : category === 'css' ? 'style.css' : category === 'javascript' ? 'script.js' : category === 'python' ? 'main.py' : category === 'php' ? 'index.php' : 'main.ts'}
-                </span>
-                <div className="editor-dots">
-                  <div className="editor-dot red" />
-                  <div className="editor-dot yellow" />
-                  <div className="editor-dot green" />
-                </div>
+            <div className="editor-header">
+              <span className="editor-filename">
+                <BrandIcon name={activeCategory} size={14} color={accentColor} />
+                <span>{info.fileName}</span>
+              </span>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                style={{ minHeight: 30, padding: '4px 10px', fontSize: '12px' }}
+                onClick={handleLoadSample}
+              >
+                <FileCode2 size={13} />
+                <span>Muat Contoh</span>
+              </button>
+            </div>
+
+            <CodeEditor
+              value={code}
+              onChange={(next) => {
+                setCode(next);
+                setError('');
+              }}
+              category={activeCategory}
+              soundEnabled={soundEnabled}
+              placeholder={intro.bonusPlaceholder}
+              disabled={!isPlayground && submitted}
+              minRows={10}
+            />
+
+            <div className="editor-footer">
+              <div className="editor-footer-actions">
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={handleReset}
+                >
+                  <RotateCcw size={14} />
+                  <span>Reset</span>
+                </button>
               </div>
 
-              {/* Shortcut simbol coding untuk HP */}
-              <div className="mobile-symbol-bar">
-                <span className="symbol-bar-label">SHORTCUT:</span>
-                <div className="symbol-buttons">
-                  {mobileSymbols.map((sym) => (
-                    <button
-                      key={sym}
-                      type="button"
-                      className="symbol-btn"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleSymbolClick(sym)}
-                    >
-                      {sym}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <div className="editor-footer-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleRun}
+                >
+                  <Play size={14} />
+                  <span>Jalankan</span>
+                </button>
 
-              {/* Line numbers + textarea */}
-              <div className="editor-body">
-                <div className="editor-line-numbers">
-                  {Array.from({ length: lineCount }, (_, i) => (
-                    <div key={i} className="line-number">{i + 1}</div>
-                  ))}
-                </div>
-                <textarea
-                  ref={textareaRef}
-                  className="editor-textarea"
-                  value={code}
-                  onChange={(e) => {
-                    const nextVal = e.target.value;
-                    if (soundEnabled && nextVal !== code) {
-                      soundTyping();
-                    }
-                    setCode(nextVal);
-                    setError('');
-                  }}
-                  onKeyDown={handleKeyDown}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  autoComplete="off"
-                  rows={Math.max(lineCount, 6)}
-                  style={{
-                    color:
-                      category === 'html' ? '#FF8B9A' :
-                      category === 'css' ? '#4CC9F0' :
-                      category === 'javascript' ? '#FFD166' :
-                      category === 'python' ? '#4ADE80' :
-                      category === 'php' ? '#8892BF' :
-                      '#3178C6',
-                  }}
-                  placeholder={intro.bonusPlaceholder}
-                  disabled={submitted}
-                />
-              </div>
-
-              <div className="editor-footer">
-                {error && (
-                  <span style={{ fontSize: '7px', color: 'var(--color-red)', flex: 1 }}>
-                    ✕ {error}
-                  </span>
+                {!isPlayground && !submitted && (
+                  <button
+                    type="button"
+                    className="btn btn-success btn-sm"
+                    onClick={handleSubmit}
+                  >
+                    <CheckCircle2 size={14} />
+                    <span>Kumpulkan Karya</span>
+                  </button>
                 )}
-                <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-                  {(category === 'javascript' || category === 'python') && (
-                    <button
-                      className="btn btn-secondary"
-                      onClick={handleRun}
-                      style={{ fontSize: '8px', padding: '6px 12px' }}
-                    >
-                      ▶ JALANKAN {category === 'python' ? 'PYTHON' : 'JS'}
-                    </button>
-                  )}
-                  {!submitted ? (
-                    <button
-                      className="btn-run btn"
-                      onClick={handleSubmit}
-                    >
-                      ✓ SUBMIT TUGAS
-                    </button>
-                  ) : (
-                    <span style={{ fontSize: '8px', color: 'var(--color-green)', alignSelf: 'center' }}>
-                      ✓ TUGAS DIKUMPULKAN
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
           </div>
+
+          {error && (
+            <div className="inline-feedback error">{error}</div>
+          )}
         </div>
 
-        {/* Right: Preview */}
-        <div className="lesson-col-preview">
-          <div className="preview-panel" style={{ borderColor: catColor, boxShadow: `4px 4px 0px ${intro.colorDark}` }}>
-            <div className="preview-header" style={{ background: catColor }}>
-              <span className="preview-title" style={{ color: category === 'python' ? '#09090b' : undefined }}>
-                LIVE PREVIEW — KARYA BEBAS
-              </span>
-              <span style={{ fontSize: '7px', color: category === 'python' ? '#09090b' : '#080C16' }}>
-                PIXEL → REALITY
-              </span>
+        {/* Right column: Preview + Quick Reference */}
+        <div className="lesson-col-quest">
+          <CodePreview
+            category={activeCategory}
+            code={code}
+            runKey={runKey}
+            hasRun={activeCategory === 'html' || activeCategory === 'css' ? true : hasRun}
+            alwaysShowHtml
+          />
+
+          <div className="quest-panel">
+            <div className="quest-panel-header">
+              <div className="quest-panel-title">
+                <span>Referensi Cepat {info.label}</span>
+              </div>
             </div>
-
-            {/* HTML Preview */}
-            {category === 'html' && (
-              <HTMLBonusPreview code={code} />
-            )}
-
-            {/* CSS Preview */}
-            {category === 'css' && (
-              <CSSBonusPreview code={code} />
-            )}
-
-            {/* JS Preview */}
-            {category === 'javascript' && (
-              <JSBonusPreview code={code} runKey={runKey} />
-            )}
-
-            {/* Python Preview */}
-            {category === 'python' && (
-              <PythonBonusPreview code={code} runKey={runKey} />
-            )}
-
-            {/* PHP Preview */}
-            {category === 'php' && (
-              <PHPBonusPreview code={code} runKey={runKey} />
-            )}
-
-            {/* TypeScript Preview */}
-            {category === 'typescript' && (
-              <TypeScriptBonusPreview code={code} runKey={runKey} />
-            )}
-          </div>
-
-          {/* Tips box */}
-          <div className="bonus-tips-box" style={{ borderColor: catColor }}>
-            <span className="pixel-label" style={{ color: catColor }}>◆ TIPS</span>
-            {category === 'html' && (
-              <ul className="bonus-tips-list">
-                <li>Gunakan tag {'<h1>'} sampai {'<h6>'} untuk judul</li>
-                <li>Gunakan tag {'<p>'} untuk paragraf</li>
-                <li>Gunakan tag {'<button>'} untuk tombol</li>
-                <li>Gunakan tag {'<a href="#">'} untuk link</li>
-                <li>Gunakan tag {'<img src="..." alt="...">'} untuk gambar</li>
-              </ul>
-            )}
-            {category === 'css' && (
-              <ul className="bonus-tips-list">
-                <li>color: untuk warna teks</li>
-                <li>background-color: untuk background</li>
-                <li>font-size: untuk ukuran huruf</li>
-                <li>border: untuk garis tepi</li>
-                <li>padding: untuk jarak dalam</li>
-                <li>border-radius: untuk sudut melengkung</li>
-              </ul>
-            )}
-            {category === 'javascript' && (
-              <ul className="bonus-tips-list">
-                <li>let / const untuk variable</li>
-                <li>console.log() untuk tampilkan teks</li>
-                <li>alert() untuk popup asli browser</li>
-                <li>if (kondisi) {'{ ... }'} untuk kondisi</li>
-                <li>function nama() {'{ ... }'} untuk fungsi</li>
-              </ul>
-            )}
-            {category === 'python' && (
-              <ul className="bonus-tips-list">
-                <li>print("teks") untuk mencetak ke terminal</li>
-                <li>nama = "Budi" untuk variable tanpa let/const</li>
-                <li>total = 10 + 20 untuk operasi matematika</li>
-                <li>if kondisi: untuk percabangan dengan tanda titik dua :</li>
-                <li>f"Halo {'{nama}'}" untuk penggabungan teks f-string modern</li>
-              </ul>
-            )}
-            {category === 'php' && (
-              <ul className="bonus-tips-list">
-                <li>Gunakan tag {'<?php'} dan penutup {'?>'}</li>
-                <li>$nama = "Budi" untuk membuat variable dengan $</li>
-                <li>echo "teks" untuk menampilkan output</li>
-                <li>Operator titik (.) untuk menyambung string</li>
-                <li>if ($kondisi) {'{ ... }'} untuk percabangan</li>
-              </ul>
-            )}
-            {category === 'typescript' && (
-              <ul className="bonus-tips-list">
-                <li>let nama: string = "Budi" untuk tipe data statis</li>
-                <li>let angka: number[] = [1, 2, 3] untuk tipe array</li>
-                <li>interface Objek {'{ prop: type }'} untuk struktur data</li>
-                <li>function kali(a: number, b: number): number untuk fungsi bertipe</li>
-                <li>enum Arah {'{ Atas, Bawah }'} untuk daftar konstanta</li>
-              </ul>
-            )}
+            <div className="quest-panel-body" style={{ gap: 10 }}>
+              {tips.map((tip, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    fontSize: '13.5px',
+                    color: 'var(--text-secondary)',
+                    padding: '8px 12px',
+                    background: 'var(--bg-elevated)',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  {tip}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -1,22 +1,29 @@
 import React from 'react';
 
 function Footer({
-  completedLessons = [],
-  totalLessons = 60,
+  completedCount = 0,
+  totalLessons = 100,
+  onResetClick,
 }) {
-  const totalCompleted = completedLessons.length;
-
   return (
     <footer className="site-footer" id="main-footer">
       <div className="footer-inner">
-        <div className="footer-modul">
-          <span className="footer-modul-icon">▶</span>
-          <span className="footer-modul-label">MODUL:</span>
-          <span className="footer-modul-stack">HTML • CSS • JavaScript • Python • PHP • TypeScript</span>
+        <div>
+          Belajar Bahasa Pemrograman — HTML, CSS, JS, TS, Python, PHP, Java, C++, Go, SQL
         </div>
-        <div className="footer-quest">
-          <span className="footer-quest-label">QUEST: </span>
-          <span className="footer-quest-count">{totalCompleted}/{totalLessons} CLEARED</span>
+        <div className="footer-actions">
+          <span className="tabular-nums">
+            {completedCount} / {totalLessons} misi selesai
+          </span>
+          {onResetClick && (
+            <button
+              type="button"
+              className="footer-reset-btn"
+              onClick={onResetClick}
+            >
+              Reset progres
+            </button>
+          )}
         </div>
       </div>
     </footer>

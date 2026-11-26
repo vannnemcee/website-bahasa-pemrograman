@@ -94,11 +94,6 @@ export function handleEditorKeyDown(e, value, onChange, category, textareaRef) {
     const immediateAfter = after.charAt(0);
 
     // Kasus A: Kursor berada tepat di antara '{' dan '}'
-    // Contoh: if (5 > 3) {|} -> tekan Enter
-    // Hasil:
-    // if (5 > 3) {
-    //   |
-    // }
     if (immediateBefore === '{' && immediateAfter === '}') {
       const newIndent = currentIndent + indentUnit;
       const insert = '\n' + newIndent + '\n' + currentIndent;
@@ -112,10 +107,10 @@ export function handleEditorKeyDown(e, value, onChange, category, textareaRef) {
       return;
     }
 
-    // Kasus B: Baris diakhiri dengan '{' (JS/CSS) atau ':' (Python)
+    // Kasus B: Baris diakhiri dengan '{' (JS/TS/CSS/PHP/Java/C++/Go) atau ':' (Python)
     const shouldIncreaseIndent =
       (category === 'python' && charBefore === ':') ||
-      (category !== 'python' && (charBefore === '{' || charBefore === '(' || charBefore === '['));
+      (category !== 'python' && category !== 'sql' && (charBefore === '{' || charBefore === '(' || charBefore === '['));
 
     if (shouldIncreaseIndent) {
       const newIndent = currentIndent + indentUnit;

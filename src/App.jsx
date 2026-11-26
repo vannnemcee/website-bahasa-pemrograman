@@ -1,13 +1,26 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { lessons } from './data/lessons';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { ArrowRight, Play, AlertTriangle } from 'lucide-react';
+import { lessons, categoryInfo } from './data/lessons';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import BrandIcon from './components/BrandIcon';
 import CategorySelection from './components/CategorySelection';
 import CategoryIntro from './components/CategoryIntro';
 import LessonList from './components/LessonList';
 import LessonDetail from './components/LessonDetail';
 import BonusChallenge from './components/BonusChallenge';
-import { soundClick, soundSelect, soundBack, soundLaunch, soundHover } from './utils/sounds';
+import { runPythonCode } from './utils/pythonRunner';
+import { runSqlCode } from './utils/sqlRunner';
+import { runGoCode } from './utils/goRunner';
+import {
+  soundClick,
+  soundSelect,
+  soundBack,
+  soundRun,
+  soundHover,
+  soundLaunch,
+  soundTyping,
+} from './utils/sounds';
 import './styles/global.css';
 
 const STORAGE_KEY = 'pixel-code-progress';
@@ -15,23 +28,27 @@ const THEME_KEY = 'pixel-code-theme';
 const SOUND_KEY = 'pixel-code-sound';
 const totalLessons = Object.values(lessons).reduce((s, arr) => s + arr.length, 0);
 
+const IGNORED_KEYS = new Set([
+  'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Escape',
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'Home', 'End', 'PageUp', 'PageDown', 'Insert',
+  'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+]);
+
 /* ===================================================
-   LOADING SCREEN — Retro Pixel Arcade Style
-   Dengan animasi meluncur ke atas (slide-up) saat selesai
+   PIXEL LAUNCH SCREEN — Slide-Up Entrance Transition
 =================================================== */
-function LoadingScreen({ isExiting, onTriggerExit }) {
+function LaunchScreen({ isExiting, onTriggerExit }) {
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState('INITIALIZING PIXEL SYSTEM...');
+  const [statusText, setStatusText] = useState('MEMUAT MODUL PIXEL...');
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
     const steps = [
-      { pct: 18, text: 'LOADING HTML CORE MODULE...' },
-      { pct: 38, text: 'LOADING CSS STYLESHEET ENGINE...' },
-      { pct: 60, text: 'INITIALIZING JAVASCRIPT RUNTIME...' },
-      { pct: 80, text: 'RENDERING RETRO PIXEL CANVAS...' },
-      { pct: 95, text: 'QUEST & CHALLENGE DATA LOADED...' },
-      { pct: 100, text: 'SYSTEM READY // ALL MODULES OK ✓' },
+      { pct: 25, text: 'MEMUAT HTML, CSS & JAVASCRIPT...' },
+      { pct: 55, text: 'MENYIAPKAN PYTHON, PHP & TYPESCRIPT...' },
+      { pct: 85, text: 'MENYIAPKAN JAVA, C++, GO & SQL...' },
+      { pct: 100, text: 'SEMUA MODUL SIAP!' },
     ];
 
     let i = 0;
@@ -39,175 +56,348 @@ function LoadingScreen({ isExiting, onTriggerExit }) {
 
     const tick = () => {
       if (i >= steps.length) {
-        // Otomatis luncurkan animasi ke atas setelah jeda singkat
         timerId = setTimeout(() => {
           if (!hasTriggeredRef.current) {
             hasTriggeredRef.current = true;
             onTriggerExit();
           }
-        }, 450);
+        }, 380);
         return;
       }
       setProgress(steps[i].pct);
       setStatusText(steps[i].text);
       i++;
-      timerId = setTimeout(tick, i === steps.length ? 250 : 320);
+      timerId = setTimeout(tick, i === steps.length ? 220 : 280);
     };
 
-    timerId = setTimeout(tick, 200);
+    timerId = setTimeout(tick, 180);
     return () => clearTimeout(timerId);
   }, [onTriggerExit]);
 
-  // Tombol skip atau klik langsung meluncurkan animasi ke atas
-  const handleUserAction = () => {
+  const handleAction = () => {
     if (!hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       setProgress(100);
-      setStatusText('LAUNCHING APPLICATION ↗');
+      setStatusText('MEMBUKA STUDIO...');
       onTriggerExit();
     }
   };
 
   return (
     <div
-      className={`loading-screen ${isExiting ? 'is-exiting-up' : ''}`}
-      onClick={handleUserAction}
+      className={`launch-screen ${isExiting ? 'is-exiting-up' : ''}`}
+      onClick={handleAction}
       role="button"
       tabIndex={0}
-      aria-label="Klik untuk memulai aplikasi"
+      aria-label="Klik atau tekan Space untuk masuk ke Belajar Bahasa Pemrograman"
     >
-      <div className="pixel-grid-bg" />
-
-      {/* Top bar */}
-      <div className="loading-topbar">
-        <div className="loading-topbar-left">
-          <span className="loading-pulse-dot" />
-          <span className="loading-site-id">BELAJAR.KODE // RPL 2026</span>
-        </div>
-        <div className="loading-topbar-right">
-          [ KLIK / TEKAN SPACE UNTUK MASUK ↗ ]
-        </div>
+      <div className="launch-topbar">
+        <span>BELAJAR BAHASA PEMROGRAMAN</span>
+        <span>[ KLIK / TEKAN SPACE UNTUK MASUK ]</span>
       </div>
 
-      {/* Center content */}
-      <div className="loading-center">
-        <div className="loading-eyebrow">◆ RPL INTERACTIVE EXHIBITION ◆</div>
-        <div className="loading-pixel-badge">8-BIT VIRTUAL ACADEMY</div>
-
-        <h1 className="loading-title">
-          BELAJAR<br />
-          <span className="loading-title-accent">BAHASA</span><br />
-          PEMROGRAMAN
+      <div className="launch-center">
+        <div className="launch-kicker">PIXEL INTERACTIVE STUDIO</div>
+        <h1 className="launch-title">
+          BELAJAR BAHASA<br />
+          <span>PEMROGRAMAN</span>
         </h1>
-
-        <p className="loading-subtitle">
-          HTML5 // CSS3 // MODERN JS // PYTHON
+        <p className="launch-subtitle">
+          HTML &middot; CSS &middot; JS &middot; TS &middot; Python &middot; PHP &middot; Java &middot; C++ &middot; Go &middot; SQL
         </p>
 
-        {/* Progress bar */}
-        <div className="loading-progress-wrap">
-          <div className="loading-progress-header">
-            <span className="loading-status">{statusText}</span>
-            <span className="loading-pct">{progress}%</span>
+        <div className="launch-progress-card">
+          <div className="launch-progress-meta">
+            <span>{statusText}</span>
+            <span className="tabular-nums">{progress}%</span>
           </div>
-
-          <div className="loading-bar-track">
-            <div
-              className="loading-bar-fill"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="launch-bar-track">
+            <div className="launch-bar-fill" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="loading-bottombar">
-        <span>STATUS: READY // UTC+7</span>
-        <span>PIXEL TO REALITY ENGINE v2.0</span>
+      <div className="launch-bottombar">
+        <span>10 BAHASA &middot; {totalLessons} MISI</span>
+        <span>SIAP DIJALANKAN DI BROWSER</span>
       </div>
     </div>
   );
 }
 
-/* ===================================================
-   HOME SCREEN — Retro Pixel Hero
-=================================================== */
-function HomeScreen({ onStart, soundEnabled }) {
-  const stars = [
-    { top: '12%', left: '4%' }, { top: '18%', right: '7%' },
-    { top: '35%', left: '10%' }, { top: '62%', right: '4%' },
-    { top: '78%', left: '6%' }, { top: '48%', right: '12%' },
-    { top: '25%', left: '88%' }, { top: '70%', left: '92%' },
-  ];
-  const codeSymbols = [
-    { top: '20%', left: '2%', text: '</>' }, { top: '68%', left: '5%', text: '{;}' },
-    { top: '28%', right: '3%', text: '< >' }, { top: '72%', right: '5%', text: '{ }' },
-    { top: '55%', left: '1%', text: '#' }, { top: '42%', right: '2%', text: '//' },
-  ];
+const HERO_DEMOS = [
+  {
+    id: 'python',
+    label: 'Python',
+    code: 'bahasa = ["Python", "Go", "SQL"]\nfor item in bahasa:\n    print("Belajar:", item)',
+  },
+  {
+    id: 'sql',
+    label: 'SQL',
+    code: 'SELECT nama, nilai\nFROM siswa\nWHERE nilai >= 85\nORDER BY nilai DESC;',
+  },
+  {
+    id: 'javascript',
+    label: 'JavaScript',
+    code: 'const angka = [2, 4, 6];\nconst total = angka.reduce((a, b) => a + b, 0);\nconsole.log("Total:", total);',
+  },
+  {
+    id: 'go',
+    label: 'Go',
+    code: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}',
+  },
+];
+
+function evaluateHeroDemo(lang, code) {
+  if (!code.trim()) return 'Ketik kode untuk melihat hasil eksekusi.';
+  if (lang === 'python') {
+    const res = runPythonCode(code);
+    if (res.error) return `Error: ${res.error}`;
+    return res.output.length ? res.output.join('\n') : '(Selesai tanpa output)';
+  }
+  if (lang === 'sql') {
+    const res = runSqlCode(code);
+    if (res.error) return `SQL Error: ${res.error}`;
+    if (res.rows && res.rows.length > 0) {
+      const header = res.columns.join(' | ');
+      const body = res.rows.map((r) => res.columns.map((c) => r[c]).join(' | ')).join('\n');
+      return `${header}\n${body}`;
+    }
+    return res.message || '(0 baris)';
+  }
+  if (lang === 'go') {
+    const res = runGoCode(code);
+    if (res.error) return `Error: ${res.error}`;
+    return res.output.length ? res.output.join('\n') : '(Selesai tanpa output)';
+  }
+  if (lang === 'javascript') {
+    try {
+      const logs = [];
+      const customConsole = {
+        log: (...args) =>
+          logs.push(
+            args
+              .map((a) => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a)))
+              .join(' ')
+          ),
+      };
+      const fn = new Function('console', code);
+      fn(customConsole);
+      return logs.length ? logs.join('\n') : '(Selesai tanpa console.log)';
+    } catch (err) {
+      return `Error: ${err.message}`;
+    }
+  }
+  return '';
+}
+
+function HomeScreen({
+  onStartCurriculum,
+  onOpenPlayground,
+  onSelectCategory,
+  completedLessons,
+  soundEnabled,
+  theme,
+}) {
+  const [activeTab, setActiveTab] = useState('python');
+  const [demoCode, setDemoCode] = useState(HERO_DEMOS[0].code);
+  const [demoOutput, setDemoOutput] = useState(() =>
+    evaluateHeroDemo(HERO_DEMOS[0].id, HERO_DEMOS[0].code)
+  );
+  const lastKeyDownRef = useRef(0);
+
+  function handleSelectDemoTab(tab) {
+    if (soundEnabled) soundClick();
+    setActiveTab(tab.id);
+    setDemoCode(tab.code);
+    setDemoOutput(evaluateHeroDemo(tab.id, tab.code));
+  }
+
+  function handleRunDemo() {
+    if (soundEnabled) soundRun();
+    setDemoOutput(evaluateHeroDemo(activeTab, demoCode));
+  }
+
+  const categories = Object.keys(categoryInfo);
 
   return (
     <div className="home-screen">
-      <div className="home-decorations">
-        {stars.map((s, i) => <span key={i} className="pixel-star" style={s}>★</span>)}
-        {codeSymbols.map((c, i) => (
-          <span key={`cs-${i}`} className="pixel-code-symbol" style={{ top: c.top, left: c.left, right: c.right }}>{c.text}</span>
-        ))}
-        <span className="pixel-cursor">█</span>
-      </div>
-
-      {/* ── HERO SECTION ── */}
-      <div className="home-hero">
-        {/* Status badge */}
-        <div className="home-status-badge">
-          <span className="home-status-pulse" />
-          <span>SIAP UNTUK BELAJAR // PIXEL QUEST</span>
+      {/* Two-Column Pixel Hero + Live Interactive Sandbox */}
+      <section className="home-hero-grid">
+        <div className="home-hero-copy">
+          <div className="home-kicker">10 BAHASA &middot; 100 MISI INTERAKTIF</div>
+          <h1 className="home-title">
+            BELAJAR BAHASA <span>PEMROGRAMAN</span>
+          </h1>
+          <p className="home-desc">
+            Kuasai HTML, CSS, JavaScript, TypeScript, Python, PHP, Java, C++, Go, dan SQL
+            secara bertahap langsung di browser dengan pratinjau instan dan pengecekan otomatis.
+          </p>
+          <div className="home-cta-row">
+            <button
+              type="button"
+              id="btn-start-learning"
+              className="btn btn-primary"
+              onClick={() => {
+                if (soundEnabled) soundSelect();
+                onStartCurriculum();
+              }}
+            >
+              <span>Mulai Belajar</span>
+              <ArrowRight size={16} />
+            </button>
+            <button
+              type="button"
+              className="home-text-link"
+              onClick={() => {
+                if (soundEnabled) soundClick();
+                onOpenPlayground();
+              }}
+            >
+              <span>Buka Playground Bebas</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
         </div>
 
-        {/* Eyebrow */}
-        <div className="home-eyebrow">
-          ◆ RPL INTERACTIVE EXHIBITION ◆
+        {/* Live Editable Mini Sandbox */}
+        <div className="home-demo-card">
+          <div className="demo-tabs-bar">
+            <div className="demo-tabs-list" role="tablist" aria-label="Contoh bahasa">
+              {HERO_DEMOS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  className={`demo-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => handleSelectDemoTab(tab)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              style={{ minHeight: 30, padding: '5px 12px', fontSize: '12px' }}
+              onClick={handleRunDemo}
+            >
+              <Play size={12} />
+              <span>Jalankan</span>
+            </button>
+          </div>
+
+          <textarea
+            className="demo-code-area"
+            value={demoCode}
+            onKeyDown={(e) => {
+              if (!IGNORED_KEYS.has(e.key) && e.key !== 'Unidentified' && soundEnabled) {
+                lastKeyDownRef.current = performance.now();
+                soundTyping(e.key);
+              }
+            }}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (soundEnabled && next !== demoCode && performance.now() - lastKeyDownRef.current > 40) {
+                soundTyping();
+              }
+              setDemoCode(next);
+            }}
+            spellCheck={false}
+            aria-label="Editor contoh interaktif"
+          />
+
+          <div className="demo-output-bar">
+            <div className="demo-output-label">
+              <span>Output Eksekusi</span>
+              <span>Edit kode lalu tekan Jalankan</span>
+            </div>
+            <pre className="demo-output-box">{demoOutput}</pre>
+          </div>
         </div>
+      </section>
 
-        {/* Judul besar */}
-        <h1 className="home-title-main">BELAJAR BAHASA</h1>
-        <div className="home-title-accent-wrap">
-          <span className="home-title-sub">PEMROGRAMAN</span>
+      {/* Metrics Strip */}
+      <section className="metrics-strip" aria-label="Ringkasan platform">
+        <div className="metric-cell">
+          <span className="metric-value">10</span>
+          <span className="metric-label">Jalur bahasa pemrograman</span>
         </div>
+        <div className="metric-cell">
+          <span className="metric-value">{totalLessons}</span>
+          <span className="metric-label">Misi latihan interaktif</span>
+        </div>
+        <div className="metric-cell">
+          <span className="metric-value">10</span>
+          <span className="metric-label">Tantangan proyek bebas</span>
+        </div>
+        <div className="metric-cell">
+          <span className="metric-value">0 setup</span>
+          <span className="metric-label">Berjalan langsung di browser</span>
+        </div>
+      </section>
 
-        {/* Sub judul */}
-        <p className="home-hero-tagline">
-          {'<'} <span>Learn.</span> <span>Code.</span> <span>Create.</span> {' />'}
-        </p>
-        <p className="home-desc">
-          Kuasai HTML, CSS, JavaScript &amp; Python melalui<br />
-          <span style={{ color: 'var(--color-white)' }}>quest interaktif bergaya pixel game.</span><br />
-          Jadikan kode kamu menjadi kenyataan!
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="home-cta-row">
+      {/* All 10 Language Tracks */}
+      <section className="home-tracks-section">
+        <div className="section-heading-row">
+          <div>
+            <h2 className="section-heading">Pilih Jalur Bahasa</h2>
+            <p className="section-subheading">
+              Setiap jalur berisi pengenalan konsep, 10 misi praktik, dan ruang tugas bebas.
+            </p>
+          </div>
           <button
-            id="btn-start-learning"
-            className="btn home-btn-primary"
-            onClick={() => { if (soundEnabled) soundSelect(); onStart(); }}
+            type="button"
+            className="home-text-link"
+            onClick={() => {
+              if (soundEnabled) soundSelect();
+              onStartCurriculum();
+            }}
           >
-            MULAI BELAJAR ↘
-          </button>
-          <button
-            className="btn home-btn-secondary"
-            onClick={() => { if (soundEnabled) soundSelect(); onStart(); }}
-          >
-            PILIH MATERI ↘
+            <span>Lihat semua kurikulum</span>
+            <ArrowRight size={15} />
           </button>
         </div>
-      </div>
+
+        <div className="home-tracks-grid">
+          {categories.map((cat) => {
+            const info = categoryInfo[cat];
+            const accentColor = theme === 'light' ? info.color : (info.colorDark || info.color);
+            const total = lessons[cat].length;
+            const done = lessons[cat].filter((l) =>
+              completedLessons.includes(`${cat}-${l.id}`)
+            ).length;
+
+            return (
+              <button
+                key={cat}
+                type="button"
+                className="home-track-tile"
+                onClick={() => {
+                  if (soundEnabled) soundSelect();
+                  onSelectCategory(cat);
+                }}
+              >
+                <div className="home-track-head">
+                  <BrandIcon name={cat} size={20} color={accentColor} />
+                  <span className="home-track-meta">
+                    {done}/{total}
+                  </span>
+                </div>
+                <div>
+                  <div className="home-track-name">{info.label}</div>
+                  <div className="home-track-meta">{info.subtitle}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }
 
-/* ===================================================
-   MAIN APP
-=================================================== */
 function App() {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading' | 'exiting' | 'done'
   const [screen, setScreen] = useState('home');
@@ -225,13 +415,20 @@ function App() {
   });
 
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch { return 'dark'; }
+    try {
+      return localStorage.getItem(THEME_KEY) || 'dark';
+    } catch {
+      return 'dark';
+    }
   });
+
   const [soundEnabled, setSoundEnabled] = useState(() => {
     try {
       const s = localStorage.getItem(SOUND_KEY);
       return s === null ? true : s === 'true';
-    } catch { return true; }
+    } catch {
+      return true;
+    }
   });
 
   useEffect(() => {
@@ -247,36 +444,41 @@ function App() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(completedLessons));
   }, [completedLessons]);
 
-  // Transisi animasi meluncur ke atas
+  const regularCompletedCount = useMemo(
+    () => completedLessons.filter((key) => !key.endsWith('-bonus')).length,
+    [completedLessons]
+  );
+
   const handleTriggerExit = useCallback(() => {
     if (loadingState !== 'loading') return;
     if (soundEnabled) soundLaunch();
     setLoadingState('exiting');
     setTimeout(() => {
       setLoadingState('done');
-    }, 650);
+    }, 620);
   }, [loadingState, soundEnabled]);
 
-  // Keyboard shortcut: Space untuk skip loading, Escape untuk kembali
+  // Keyboard shortcuts: Space to skip launch splash, Escape to navigate back
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === 'Space' && loadingState === 'loading') {
         e.preventDefault();
         handleTriggerExit();
-      } else if (e.code === 'Escape') {
-        if (showResetConfirm) {
-          setShowResetConfirm(false);
-        } else if (screen === 'lesson-detail' || screen === 'bonus-challenge') {
-          setScreen('lesson-list');
-          setSelectedLesson(null);
-        } else if (screen === 'lesson-list') {
-          setScreen('category-intro');
-        } else if (screen === 'category-intro') {
-          setScreen('category');
-          setSelectedCategory(null);
-        } else if (screen === 'category') {
-          setScreen('home');
-        }
+        return;
+      }
+      if (e.code !== 'Escape') return;
+      if (showResetConfirm) {
+        setShowResetConfirm(false);
+      } else if (screen === 'lesson-detail' || screen === 'bonus-challenge') {
+        setScreen('lesson-list');
+        setSelectedLesson(null);
+      } else if (screen === 'lesson-list') {
+        setScreen('category-intro');
+      } else if (screen === 'category-intro') {
+        setScreen('category');
+        setSelectedCategory(null);
+      } else if (screen === 'category' || screen === 'playground') {
+        setScreen('home');
       }
     };
 
@@ -284,10 +486,9 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [loadingState, showResetConfirm, screen, handleTriggerExit]);
 
-  // Efek suara kursor hover (gaya micro-interaction Razzan Portfolio)
+  // Subtle hover feedback audio when enabled
   useEffect(() => {
     if (!soundEnabled) return;
-
     let lastTarget = null;
     let lastSoundTime = 0;
 
@@ -295,14 +496,12 @@ function App() {
       const target = e.target;
       if (!target) return;
       const interactiveEl = target.closest(
-        'button, a, .category-card, .lesson-card, .btn, .symbol-btn, .nav-btn, [role="button"], input, select, textarea, .tab-btn, .mobile-tab-btn, .sound-toggle-btn, .theme-toggle-btn'
+        'button, a, [role="button"], .category-card, .lesson-card, .home-track-tile'
       );
-
       if (interactiveEl && interactiveEl !== lastTarget) {
         lastTarget = interactiveEl;
         const now = performance.now();
-        // Throttle 45ms agar audio tetap jernih dan bebas distorsi
-        if (now - lastSoundTime > 45) {
+        if (now - lastSoundTime > 65) {
           lastSoundTime = now;
           soundHover();
         }
@@ -310,165 +509,182 @@ function App() {
     };
 
     window.addEventListener('pointerover', handlePointerOver, { passive: true });
-    return () => {
-      window.removeEventListener('pointerover', handlePointerOver);
-    };
+    return () => window.removeEventListener('pointerover', handlePointerOver);
   }, [soundEnabled]);
 
   function handleComplete(lessonKey) {
-    setCompletedLessons((prev) => prev.includes(lessonKey) ? prev : [...prev, lessonKey]);
+    setCompletedLessons((prev) => (prev.includes(lessonKey) ? prev : [...prev, lessonKey]));
   }
 
   function handleSelectCategory(cat) {
-    if (soundEnabled) soundSelect();
     setSelectedCategory(cat);
     setSelectedLesson(null);
     setScreen('category-intro');
   }
 
-  function handleIntroStart() { setScreen('lesson-list'); }
-  function handleIntroBack() { setScreen('category'); setSelectedCategory(null); }
-
   function handleSelectLesson(lesson) {
-    if (soundEnabled) soundClick();
     setSelectedLesson(lesson);
     setScreen('lesson-detail');
   }
 
-  function handleSelectBonus() {
-    if (soundEnabled) soundClick();
-    setScreen('bonus-challenge');
-  }
-
-  function handleBackToList() {
-    if (soundEnabled) soundBack();
-    setSelectedLesson(null);
-    setScreen('lesson-list');
-  }
-
-  function handleBackToIntro() {
-    if (soundEnabled) soundBack();
-    setScreen('category-intro');
-  }
-
   function handleGoHome() {
-    if (soundEnabled) soundBack();
     setScreen('home');
     setSelectedCategory(null);
     setSelectedLesson(null);
   }
 
+  function handleOpenCurriculum() {
+    setSelectedLesson(null);
+    setScreen('category');
+  }
+
+  function handleOpenPlayground() {
+    setSelectedLesson(null);
+    setScreen('playground');
+  }
+
+  const transitionKey = `${screen}-${selectedCategory || ''}-${selectedLesson?.id || ''}`;
+
   return (
     <>
-      {/* Loading overlay dengan animasi meluncur ke atas saat selesai */}
       {loadingState !== 'done' && (
-        <LoadingScreen
+        <LaunchScreen
           isExiting={loadingState === 'exiting'}
           onTriggerExit={handleTriggerExit}
         />
       )}
 
-      {/* Main app wrapper with upward entrance animation */}
       <div
         className={`app-wrapper ${loadingState === 'exiting' ? 'app-entering-up' : ''}`}
         id="app-root"
       >
-        <div className="pixel-grid-bg" />
-
         <Header
           screen={screen}
-          selectedCategory={selectedCategory}
           onGoHome={handleGoHome}
-          onSelectCategory={handleSelectCategory}
-          completedLessons={completedLessons}
-          totalLessons={totalLessons}
+          onOpenCurriculum={handleOpenCurriculum}
+          onOpenPlayground={handleOpenPlayground}
           theme={theme}
-          onToggleTheme={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+          onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
           soundEnabled={soundEnabled}
-          onToggleSound={() => setSoundEnabled(s => !s)}
+          onToggleSound={() => setSoundEnabled((s) => !s)}
         />
 
-        <main
-          className="main-content"
-          style={{
-            paddingTop: screen === 'home' ? 0 : '24px',
-            paddingLeft: screen === 'home' ? 0 : undefined,
-            paddingRight: screen === 'home' ? 0 : undefined,
-          }}
-        >
-          {screen === 'home' && (
-            <HomeScreen
-              onStart={() => setScreen('category')}
-              soundEnabled={soundEnabled}
-              completedLessons={completedLessons}
-            />
-          )}
-          {screen === 'category' && (
-            <CategorySelection
-              onSelectCategory={handleSelectCategory}
-              completedLessons={completedLessons}
-              soundEnabled={soundEnabled}
-            />
-          )}
-          {screen === 'category-intro' && selectedCategory && (
-            <CategoryIntro
-              category={selectedCategory}
-              onStart={handleIntroStart}
-              onBack={handleIntroBack}
-              soundEnabled={soundEnabled}
-            />
-          )}
-          {screen === 'lesson-list' && selectedCategory && (
-            <LessonList
-              category={selectedCategory}
-              onSelectLesson={handleSelectLesson}
-              onBack={handleBackToIntro}
-              onSelectBonus={handleSelectBonus}
-              completedLessons={completedLessons}
-              soundEnabled={soundEnabled}
-            />
-          )}
-          {screen === 'lesson-detail' && selectedCategory && selectedLesson && (
-            <LessonDetail
-              category={selectedCategory}
-              lesson={selectedLesson}
-              onBack={handleBackToList}
-              onComplete={handleComplete}
-              completedLessons={completedLessons}
-              soundEnabled={soundEnabled}
-            />
-          )}
-          {screen === 'bonus-challenge' && selectedCategory && (
-            <BonusChallenge
-              category={selectedCategory}
-              onBack={handleBackToList}
-              onComplete={handleComplete}
-              completedLessons={completedLessons}
-              soundEnabled={soundEnabled}
-            />
-          )}
+        <main className="main-content">
+          <div key={transitionKey} className="screen-enter-up">
+            {screen === 'home' && (
+              <HomeScreen
+                onStartCurriculum={handleOpenCurriculum}
+                onOpenPlayground={handleOpenPlayground}
+                onSelectCategory={handleSelectCategory}
+                completedLessons={completedLessons}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'category' && (
+              <CategorySelection
+                onSelectCategory={handleSelectCategory}
+                completedLessons={completedLessons}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'category-intro' && selectedCategory && (
+              <CategoryIntro
+                category={selectedCategory}
+                onStart={() => setScreen('lesson-list')}
+                onBack={() => {
+                  setScreen('category');
+                  setSelectedCategory(null);
+                }}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'lesson-list' && selectedCategory && (
+              <LessonList
+                category={selectedCategory}
+                onSelectLesson={handleSelectLesson}
+                onBack={() => {
+                  if (soundEnabled) soundBack();
+                  setScreen('category-intro');
+                }}
+                onSelectBonus={() => {
+                  if (soundEnabled) soundClick();
+                  setScreen('bonus-challenge');
+                }}
+                completedLessons={completedLessons}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'lesson-detail' && selectedCategory && selectedLesson && (
+              <LessonDetail
+                category={selectedCategory}
+                lesson={selectedLesson}
+                onBack={() => {
+                  setSelectedLesson(null);
+                  setScreen('lesson-list');
+                }}
+                onSelectLesson={handleSelectLesson}
+                onComplete={handleComplete}
+                completedLessons={completedLessons}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'bonus-challenge' && selectedCategory && (
+              <BonusChallenge
+                mode="bonus"
+                category={selectedCategory}
+                onBack={() => setScreen('lesson-list')}
+                onComplete={handleComplete}
+                completedLessons={completedLessons}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+
+            {screen === 'playground' && (
+              <BonusChallenge
+                mode="playground"
+                category={selectedCategory || 'javascript'}
+                soundEnabled={soundEnabled}
+                theme={theme}
+              />
+            )}
+          </div>
         </main>
 
-        {/* Global sticky footer — selalu rapi di bagian bawah */}
         <Footer
-          screen={screen}
-          selectedCategory={selectedCategory}
-          onGoHome={handleGoHome}
-          onSelectCategory={handleSelectCategory}
-          completedLessons={completedLessons}
+          completedCount={regularCompletedCount}
           totalLessons={totalLessons}
           onResetClick={() => setShowResetConfirm(true)}
-          soundEnabled={soundEnabled}
         />
 
         {showResetConfirm && (
           <div className="modal-overlay" onClick={() => setShowResetConfirm(false)}>
-            <div className="modal-box error" onClick={e => e.stopPropagation()}>
-              <span className="modal-icon" style={{ color: 'var(--color-yellow)' }}>⚠</span>
-              <h2 className="modal-title" style={{ color: 'var(--color-yellow)', fontSize: '11px' }}>RESET PROGRESS?</h2>
-              <p className="modal-subtitle">Semua progress belajar quest akan dihapus.<br />Tindakan ini tidak dapat dibatalkan.</p>
+            <div
+              className="modal-box"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="modal-icon-circle warn">
+                <AlertTriangle size={22} />
+              </div>
+              <h2 className="modal-title">Reset Progres Belajar?</h2>
+              <p className="modal-subtitle">
+                Semua catatan misi yang telah diselesaikan akan dihapus dari browser ini dan tidak dapat dikembalikan.
+              </p>
               <div className="modal-actions">
                 <button
+                  type="button"
                   className="btn btn-danger"
                   onClick={() => {
                     localStorage.removeItem(STORAGE_KEY);
@@ -476,9 +692,15 @@ function App() {
                     setShowResetConfirm(false);
                   }}
                 >
-                  YA, RESET
+                  Ya, Reset Progres
                 </button>
-                <button className="btn btn-ghost" onClick={() => setShowResetConfirm(false)}>BATAL</button>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => setShowResetConfirm(false)}
+                >
+                  Batal
+                </button>
               </div>
             </div>
           </div>

@@ -223,69 +223,69 @@ export function soundTyping(key = '') {
     if (!c) return;
 
     const now = c.currentTime;
-    // Micro debounce (20ms) agar audio tidak distorsi/menumpuk saat fast typing
-    if (now - lastTypeAudioTime < 0.02) return;
+    // Micro debounce (18ms) agar audio tidak menumpuk saat fast typing
+    if (now - lastTypeAudioTime < 0.018) return;
     lastTypeAudioTime = now;
 
-    // Variasi acak halus (+/- 7%) agar terasa seperti keyboard fisik sungguhan
-    const jitter = 0.93 + Math.random() * 0.14;
+    // Variasi acak halus (+/- 8%) agar terasa seperti keyboard mekanikal sungguhan
+    const jitter = 0.92 + Math.random() * 0.16;
 
-    let clickFreq = 2100 * jitter;
-    let bodyFreq = 340 * jitter;
-    let volume = 0.042;
-    let duration = 0.026;
+    let clickFreq = 1850 * jitter;
+    let bodyFreq = 320 * jitter;
+    let volume = 0.15;
+    let duration = 0.032;
 
     if (key === 'Enter') {
-      clickFreq = 1500;
-      bodyFreq = 220;
-      volume = 0.058;
-      duration = 0.036;
+      clickFreq = 1280;
+      bodyFreq = 210;
+      volume = 0.2;
+      duration = 0.045;
     } else if (key === ' ' || key === 'Space') {
-      clickFreq = 1750;
-      bodyFreq = 250;
-      volume = 0.048;
-      duration = 0.032;
+      clickFreq = 1480;
+      bodyFreq = 240;
+      volume = 0.17;
+      duration = 0.038;
     } else if (key === 'Backspace' || key === 'Delete') {
-      clickFreq = 2600 * jitter;
-      bodyFreq = 400;
-      volume = 0.044;
-      duration = 0.024;
+      clickFreq = 2250 * jitter;
+      bodyFreq = 380;
+      volume = 0.16;
+      duration = 0.028;
     } else if (key === 'Tab') {
-      clickFreq = 1900;
-      bodyFreq = 290;
-      volume = 0.048;
-      duration = 0.03;
+      clickFreq = 1650;
+      bodyFreq = 280;
+      volume = 0.17;
+      duration = 0.035;
     }
 
-    // 1. Transient click (snappy tactile switch click)
+    // 1. Tactile pixel click (snappy switch transient)
     const oscClick = c.createOscillator();
     const gainClick = c.createGain();
-    oscClick.type = 'triangle';
+    oscClick.type = 'square';
     oscClick.frequency.setValueAtTime(clickFreq, now);
-    oscClick.frequency.exponentialRampToValueAtTime(Math.max(180, clickFreq * 0.35), now + 0.012);
+    oscClick.frequency.exponentialRampToValueAtTime(Math.max(200, clickFreq * 0.32), now + 0.016);
 
-    gainClick.gain.setValueAtTime(volume * 0.85, now);
-    gainClick.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+    gainClick.gain.setValueAtTime(volume * 0.55, now);
+    gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.016);
 
     oscClick.connect(gainClick);
     gainClick.connect(c.destination);
     oscClick.start(now);
-    oscClick.stop(now + 0.015);
+    oscClick.stop(now + 0.018);
 
-    // 2. Body resonance (subtle mechanical bottom-out thud)
+    // 2. Mechanical bottom-out body resonance
     const oscBody = c.createOscillator();
     const gainBody = c.createGain();
-    oscBody.type = 'sine';
+    oscBody.type = 'triangle';
     oscBody.frequency.setValueAtTime(bodyFreq, now);
-    oscBody.frequency.exponentialRampToValueAtTime(Math.max(70, bodyFreq * 0.45), now + duration);
+    oscBody.frequency.exponentialRampToValueAtTime(Math.max(85, bodyFreq * 0.45), now + duration);
 
-    gainBody.gain.setValueAtTime(volume * 0.65, now);
-    gainBody.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    gainBody.gain.setValueAtTime(volume, now);
+    gainBody.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
     oscBody.connect(gainBody);
     gainBody.connect(c.destination);
     oscBody.start(now);
-    oscBody.stop(now + duration + 0.004);
+    oscBody.stop(now + duration + 0.005);
   } catch {
     // Ignore audio error
   }

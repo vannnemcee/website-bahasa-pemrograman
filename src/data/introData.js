@@ -1,25 +1,27 @@
 /**
- * introData.js — Data panduan awal untuk setiap kategori
+ * introData.js — Data panduan awal untuk setiap kategori bahasa pemrograman
  */
 
 export const categoryIntro = {
   html: {
     abbreviation: "HyperText Markup Language",
     tagline: "Bahasa Penanda Struktur Halaman Web",
+    fileName: "index.html",
+    typeLabel: "Markup Language (Struktur)",
+    ecosystemLabel: "Standar Web W3C & WHATWG",
     description:
-      "HTML adalah bahasa standar untuk membuat dan menyusun STRUKTUR halaman web. Setiap halaman web yang kamu lihat di internet — dibuat menggunakan HTML. HTML bukan bahasa pemrograman, melainkan bahasa MARKUP yang memberitahu browser bagaimana menampilkan konten.",
+      "HTML adalah bahasa standar untuk menyusun struktur halaman web. Setiap dokumen web menggunakan tag HTML untuk menandai judul, paragraf, gambar, tautan, maupun formulir agar browser dapat menampilkannya dengan tepat.",
     kepanjangan: [
-      { huruf: "H", kata: "Hyper", arti: "Teks yang bisa terhubung satu sama lain (hyperlink)" },
-      { huruf: "T", kata: "Text", arti: "Berbasis teks — bisa ditulis di text editor biasa" },
-      { huruf: "M", kata: "Markup", arti: "Menggunakan tag <> untuk menandai konten" },
-      { huruf: "L", kata: "Language", arti: "Bahasa standar yang dimengerti oleh browser" },
+      { huruf: "H", kata: "Hyper", arti: "Teks yang dapat saling terhubung melalui tautan (hyperlink)" },
+      { huruf: "T", kata: "Text", arti: "Berbasis teks biasa yang ringan dan mudah dibaca" },
+      { huruf: "M", kata: "Markup", arti: "Menggunakan tag <...> untuk menandai struktur elemen" },
+      { huruf: "L", kata: "Language", arti: "Bahasa standar universal yang dipahami semua browser" },
     ],
     facts: [
-      "🌐 Diciptakan oleh Tim Berners-Lee pada tahun 1991",
-      "📄 Versi modern adalah HTML5 yang mendukung audio, video, dan kanvas",
-      "🏷️ HTML menggunakan TAG seperti <h1>, <p>, <a> untuk menandai elemen",
-      "🚀 Setiap website di internet PASTI menggunakan HTML sebagai fondasi",
-      "⚡ Browser membaca HTML dan mengubahnya jadi tampilan visual di layar",
+      "Diciptakan oleh Tim Berners-Lee pada tahun 1991 di CERN.",
+      "Versi HTML5 mendukung elemen semantik, audio, video, dan kanvas secara native.",
+      "Setiap website di internet menggunakan HTML sebagai fondasi struktur dokumennya.",
+      "Browser memparsing kode HTML menjadi pohon DOM sebelum merender tampilan visual.",
     ],
     whatYouLearn: [
       "Membuat judul dan sub-judul (h1 - h6)",
@@ -27,13 +29,12 @@ export const categoryIntro = {
       "Menambahkan tombol interaktif",
       "Membuat hyperlink navigasi halaman",
       "Menampilkan gambar dengan atribut src & alt",
-      "Membuat form dan kolom input teks",
+      "Membuat kolom input teks dengan placeholder",
       "Menyusun daftar poin dengan ul dan li",
       "Mengelompokkan tata letak dengan div",
+      "Menyusun formulir dengan elemen form",
     ],
-    icon: "</>",
-    color: "#FF667D",
-    colorDark: "#aa2244",
+    color: "#E11D48",
     example: `<!DOCTYPE html>
 <html>
   <head>
@@ -46,307 +47,463 @@ export const categoryIntro = {
     <button>Klik Saya</button>
   </body>
 </html>`,
-    bonusTitle: "TUGAS BEBAS HTML",
+    bonusTitle: "Tugas Bebas HTML",
     bonusInstruction:
-      "Buatlah halaman web bebas menggunakan HTML! Gunakan kombinasi tag heading, paragraf, button, link, input, dan gambar yang telah kamu pelajari. Tidak ada aturan — ekspresikan kreativitasmu!",
-    bonusPlaceholder: `<!DOCTYPE html>
-<html>
-  <head>
-    <title>Web Portofolioku</title>
-  </head>
-  <body>
-    <h1>Selamat Datang!</h1>
-    <p>Saya sedang belajar membuat website.</p>
-    <button>Kunjungi Profil</button>
-  </body>
-</html>`,
-    bonusMinLength: 20,
+      "Buatlah halaman web bebas menggunakan HTML! Gabungkan tag heading, paragraf, tombol, link, daftar, atau gambar yang telah kamu pelajari.",
+    bonusPlaceholder: `<h1>Profil Saya</h1>
+<p>Saya sedang belajar membuat struktur web dengan HTML.</p>
+<ul>
+  <li>HTML Dasar</li>
+  <li>CSS Layout</li>
+</ul>
+<button>Hubungi Saya</button>`,
   },
 
   css: {
     abbreviation: "Cascading Style Sheets",
-    tagline: "Bahasa Desain dan Gaya Tampilan Halaman Web",
+    tagline: "Bahasa Desain dan Tata Letak Halaman Web",
+    fileName: "style.css",
+    typeLabel: "Style Sheet Language (Visual)",
+    ecosystemLabel: "Standar Web W3C",
     description:
-      "CSS adalah bahasa yang digunakan untuk MENDESAIN dan MEMPERCANTIK tampilan halaman HTML. Jika HTML adalah kerangka tulang bangunan, maka CSS adalah cat dinding, jendela kaca, dekorasi interior, dan tata letak estetikanya.",
+      "CSS digunakan untuk mengatur tampilan visual halaman HTML: warna, tipografi, jarak antar-elemen, bayangan, serta tata letak responsif di layar desktop maupun ponsel.",
     kepanjangan: [
-      { huruf: "C", kata: "Cascading", arti: "Aturan gaya mengalir dari atas ke bawah secara berurutan" },
-      { huruf: "S", kata: "Style", arti: "Mengatur gaya visual: warna, ukuran, font, dan jarak" },
-      { huruf: "S", kata: "Sheets", arti: "Lembar dokumen instruksi desain yang terpisah dari HTML" },
+      { huruf: "C", kata: "Cascading", arti: "Aturan gaya mengalir berurutan sesuai prioritas spesifisitas" },
+      { huruf: "S", kata: "Style", arti: "Mengatur warna, ukuran huruf, border, dan tata letak" },
+      { huruf: "S", kata: "Sheets", arti: "Lembar gaya yang terpisah rapi dari struktur dokumen" },
     ],
     facts: [
-      "🎨 Diciptakan oleh Hakon Wium Lie pada 10 Oktober 1994",
-      "🌈 Mendukung lebih dari 16 juta kombinasi warna (RGB, Hex, HSL)",
-      "📱 Membuat website responsif dan pas di layar HP maupun laptop",
-      "✨ Bisa membuat animasi halus tanpa bantuan JavaScript",
-      "🎯 Format dasarnya sangat sederhana: selector { property: value; }",
+      "Diusulkan oleh Hakon Wium Lie pada tahun 1994.",
+      "Mendukung lebih dari 16 juta warna melalui format Hex, RGB, dan HSL.",
+      "Flexbox dan CSS Grid memungkinkan penyusunan layout kompleks tanpa tabel.",
+      "Transisi dan animasi halus dapat dibuat langsung di CSS tanpa JavaScript.",
     ],
     whatYouLearn: [
-      "Mengubah warna teks (color) & background",
-      "Mengatur ukuran font teks (font-size)",
+      "Mengubah warna teks (color) & latar (background-color)",
+      "Mengatur ukuran huruf (font-size)",
       "Membuat garis tepi (border) & sudut melengkung (border-radius)",
       "Mengatur jarak dalam (padding) & jarak luar (margin)",
-      "Meratakan posisi teks ke tengah (text-align)",
-      "Menambahkan bayangan bergaya retro (box-shadow)",
+      "Meratakan posisi teks (text-align)",
+      "Menambahkan bayangan kotak (box-shadow)",
       "Mengaktifkan tata letak fleksibel (display: flex)",
     ],
-    icon: "✦",
-    color: "#4CC9F0",
-    colorDark: "#006699",
-    example: `/* Kartu Profil Retro */
-.kartu {
-  background-color: #1a1a2e;
-  color: #4CC9F0;
+    color: "#0284C7",
+    example: `.kartu {
+  background-color: #0f172a;
+  color: #38bdf8;
   font-size: 16px;
-  border: 2px solid #4CC9F0;
+  border: 2px solid #38bdf8;
   border-radius: 8px;
   padding: 20px;
   text-align: center;
 }`,
-    bonusTitle: "TUGAS BEBAS CSS",
+    bonusTitle: "Tugas Bebas CSS",
     bonusInstruction:
-      "Desainlah kotak preview dengan berbagai property CSS yang telah kamu pelajari! Bereksperimenlah dengan kombinasi warna, border, padding, border-radius, dan bayangan.",
-    bonusPlaceholder: `/* Desain kotak gayamu sendiri! */
-color: #4CC9F0;
-background-color: #0f172a;
+      "Rancang kotak pratinjau dengan berbagai properti CSS! Eksperimenlah dengan warna, border, padding, border-radius, dan box-shadow.",
+    bonusPlaceholder: `color: #f8fafc;
+background-color: #0284c7;
 font-size: 20px;
-border: 2px solid #38bdf8;
-border-radius: 12px;
+border: 2px solid #0369a1;
+border-radius: 10px;
 padding: 24px;
 text-align: center;`,
-    bonusMinLength: 10,
   },
 
   javascript: {
-    abbreviation: "JavaScript Programming Language",
-    tagline: "Bahasa Pemrograman Web yang Membuat Halaman Hidup",
+    abbreviation: "JavaScript (ECMAScript)",
+    tagline: "Bahasa Pemrograman Web untuk Logika & Interaktivitas",
+    fileName: "script.js",
+    typeLabel: "Dynamic Scripting Language",
+    ecosystemLabel: "ECMA-262 // Browser & Node.js",
     description:
-      "JavaScript adalah bahasa PEMROGRAMAN yang membuat halaman web menjadi interaktif dan dinamis. Berbeda dengan HTML dan CSS, JavaScript bisa membuat website BERPIKIR dan BEREAKSI terhadap aksi pengguna. Dari animasi, game, hingga aplikasi web modern — semuanya menggunakan JavaScript.",
+      "JavaScript membuat halaman web menjadi hidup dan interaktif. Bahasa ini berjalan langsung di browser untuk merespons aksi pengguna, mengelola data, melakukan perhitungan, dan membangun aplikasi web modern.",
     kepanjangan: [
-      { huruf: "J", kata: "Java", arti: "Nama terinspirasi dari kopi dan tren era 90-an (bukan bahasa Java!)" },
-      { huruf: "S", kata: "Script", arti: "Bahasa scripting yang berjalan langsung di browser pengguna" },
+      { huruf: "J", kata: "Java", arti: "Penamaan era 1995 yang terinspirasi tren saat itu (berbeda dari bahasa Java)" },
+      { huruf: "S", kata: "Script", arti: "Bahasa skrip ringan yang langsung dieksekusi oleh mesin browser" },
     ],
-    catatan: "⚠️ JavaScript BUKAN Java! Keduanya adalah bahasa pemrograman yang BERBEDA sama sekali.",
+    catatan: "JavaScript berbeda sama sekali dengan bahasa Java meskipun namanya mirip.",
     facts: [
-      "⚡ Diciptakan oleh Brendan Eich pada tahun 1995 — hanya dalam 10 hari!",
-      "🌍 Bahasa pemrograman paling populer di dunia selama 10+ tahun berturut-turut",
-      "🖥️ Berjalan langsung di browser — tidak perlu instalasi apapun",
-      "📦 Bisa digunakan untuk membuat website, aplikasi mobile, game, dan server",
-      "🤖 Digunakan oleh perusahaan teknologi dunia: Google, Netflix, Meta, YouTube",
+      "Dirancang oleh Brendan Eich pada tahun 1995 dalam waktu 10 hari.",
+      "Menjadi bahasa pemrograman paling banyak digunakan di dunia untuk pengembangan web.",
+      "Dapat berjalan di browser maupun di server menggunakan runtime seperti Node.js.",
+      "Digunakan oleh aplikasi web besar seperti Google Maps, Figma, dan YouTube.",
     ],
     whatYouLearn: [
-      "Menampilkan pesan log di console (console.log)",
-      "Membuat popup interaktif dengan alert()",
-      "Menyimpan data ke variable (let, const)",
-      "Melakukan operasi hitung matematika",
-      "Membuat logika kondisi dengan if statement",
-      "Membuat fungsi reusable (function & arrow function)",
-      "Menyimpan kumpulan data dengan array []",
+      "Menampilkan output ke konsol (console.log)",
+      "Membuat dialog pesan (alert)",
+      "Menyimpan data pada variabel (let, const)",
+      "Melakukan operasi matematika",
+      "Logika kondisi dengan if statement",
+      "Membuat fungsi standar & arrow function",
+      "Menyimpan daftar data dalam array []",
       "Menggabungkan teks dengan template literals",
-      "Perulangan otomatis dengan for loop",
+      "Mengulang instruksi dengan for loop",
     ],
-    icon: "{}",
-    color: "#FFD166",
-    colorDark: "#aa7700",
-    example: `// Program JavaScript
-let nama = "Programmer";
-let level = 1;
+    color: "#D97706",
+    example: `const nama = "Programmer";
+const level = 1;
 
 console.log("Selamat datang, " + nama);
 
 if (level > 0) {
-  console.log("Siap memulai quest coding!");
+  console.log("Siap memulai latihan!");
 }`,
-    bonusTitle: "TUGAS BEBAS JAVASCRIPT",
+    bonusTitle: "Tugas Bebas JavaScript",
     bonusInstruction:
-      "Buatlah program JavaScript bebas! Gunakan kombinasi variable, kondisi if, perulangan for, dan function yang sudah kamu pelajari. Tidak ada jawaban yang salah — berkreasi sesuka hati!",
-    bonusPlaceholder: `// Tulis kode JavaScript bebasmu di sini!
-let nama = "Budi";
+      "Tulis program JavaScript bebas menggunakan variabel, kondisi if, perulangan for, array, atau fungsi.",
+    bonusPlaceholder: `const nama = "Budi";
 let skor = 100;
 
 console.log("Halo, " + nama);
-console.log("Skormu: " + skor);
-
-if (skor >= 100) {
-  console.log("Selamat! Kamu mencapai skor maksimal!");
+if (skor >= 80) {
+  console.log("Nilai sangat baik!");
 }`,
-    bonusMinLength: 15,
-  },
-
-  python: {
-    abbreviation: "Python Programming Language",
-    tagline: "Bahasa Pemrograman Modern yang Bersih, Kuat & Serbaguna",
-    description:
-      "Python adalah bahasa pemrograman tingkat tinggi yang dirancang agar mudah dibaca dan dipahami seperti bahasa Inggris. Digunakan secara luas untuk kecerdasan buatan (AI), analisis data, pembuatan bot, hingga pengembangan aplikasi web dan game.",
-    kepanjangan: [
-      { huruf: "P", kata: "Power", arti: "Sangat kuat untuk AI, Machine Learning, dan otomatisasi" },
-      { huruf: "Y", kata: "Yield", arti: "Menghasilkan kode efisien dengan baris yang jauh lebih sedikit" },
-      { huruf: "T", kata: "Typing", arti: "Dynamic Typing yang fleksibel dan sangat ramah bagi pemula" },
-      { huruf: "H", kata: "High-level", arti: "Tingkat tinggi, sintaksis bersih dan mendekati bahasa manusia" },
-      { huruf: "O", kata: "Open", arti: "Open-source, 100% gratis, dan didukung komunitas internasional" },
-      { huruf: "N", kata: "Named", arti: "Dinamai oleh penciptanya dari serial komedi Monty Python" },
-    ],
-    catatan: "🐍 Python menggunakan spasi/indentasi untuk menandai blok kode, bukan kurung kurawal {}!",
-    facts: [
-      "⚡ Diciptakan oleh Guido van Rossum pada tahun 1991 di Belanda",
-      "🤖 Bahasa nomor #1 di dunia untuk AI, Machine Learning & Data Science",
-      "🚀 Digunakan oleh raksasa teknologi: NASA, Google, Netflix, Spotify, Instagram",
-      "📚 Sintaksisnya sangat ringkas sehingga proses belajar jauh lebih cepat",
-      "🖥️ Sangat populer untuk otomatisasi tugas harian dan pemrograman robotika",
-    ],
-    whatYouLearn: [
-      "Mencetak teks dan angka dengan print()",
-      "Menyimpan nilai ke dalam variable tanpa kata kunci rumit",
-      "Melakukan operasi hitung matematika otomatis",
-      "Logika pengkondisian dengan pernyataan if",
-      "Menyimpan banyak data dalam sebuah list []",
-      "Perulangan otomatis dengan for dan range()",
-      "Mendefinisikan fungsi kustom dengan kata kunci def",
-      "Menggabungkan teks modern dengan fitur f-string",
-    ],
-    icon: "🐍",
-    color: "#4ADE80",
-    colorDark: "#15803d",
-    example: `# Program Python Modern
-nama = "Programmer Muda"
-tahun = 2026
-
-print(f"Halo, {nama}!")
-print("Tahun Belajar:", tahun)
-
-if tahun >= 2026:
-    print("Era AI dan Coding Masa Depan!")`,
-    bonusTitle: "TUGAS BEBAS PYTHON",
-    bonusInstruction:
-      "Buatlah program Python bebas! Gunakan kombinasi print(), variable, operasi matematika, dan kondisi if yang sudah kamu pelajari. Berkreasi sesuka hati!",
-    bonusPlaceholder: `# Tulis program Python bebasmu di sini!
-nama = "Programmer Hebat"
-nilai_a = 15
-nilai_b = 25
-total = nilai_a + nilai_b
-
-print("Nama:", nama)
-print("Hasil Penjumlahan:", total)
-
-if total > 30:
-    print("Hebat! Total melebihi 30!")`,
-    bonusMinLength: 15,
-  },
-
-  php: {
-    abbreviation: "PHP: Hypertext Preprocessor",
-    tagline: "Bahasa Server-Side Terpopuler untuk Website Dinamis",
-    description:
-      "PHP adalah bahasa skrip server-side yang dirancang khusus untuk pengembangan web. PHP berjalan di server web, memproses logika database, dan menghasilkan HTML dinamis yang dikirimkan ke browser pengguna. Lebih dari 75% website di dunia ditenagai oleh PHP, termasuk WordPress dan Wikipedia!",
-    kepanjangan: [
-      { huruf: "P", kata: "PHP", arti: "Singkatan rekursif untuk PHP: Hypertext Preprocessor" },
-      { huruf: "H", kata: "Hypertext", arti: "Menghasilkan dokumen web terstruktur dan interaktif" },
-      { huruf: "P", kata: "Preprocessor", arti: "Dieksekusi di server sebelum kode dikirim ke browser pengguna" },
-    ],
-    facts: [
-      "🐘 Diciptakan oleh Rasmus Lerdorf pada tahun 1994",
-      "🌐 Menggerakkan lebih dari 75% website di internet termasuk platform WordPress",
-      "💼 Website raksasa seperti Wikipedia, Slack, Canva, dan Facebook berawal dari PHP",
-      "⚡ Versi PHP 8 modern sangat cepat berkat dukungan JIT (Just-In-Time) compiler",
-      "🔌 Sangat mudah terhubung dengan sistem database seperti MySQL dan PostgreSQL",
-    ],
-    whatYouLearn: [
-      "Menampilkan output teks dengan perintah echo dan print",
-      "Memahami struktur tag pembuka <?php dan penutup ?>",
-      "Membuat variable dinamis menggunakan awalan dollar ($)",
-      "Melakukan operasi aritmatika dan kalkulasi angka",
-      "Menggabungkan string dengan operator titik (.)",
-      "Logika percabangan kondisi dengan if statement",
-      "Menyimpan banyak data dalam array []",
-      "Membaca elemen array dengan perulangan foreach",
-      "Mendefinisikan fungsi kustom dengan kata kunci function",
-    ],
-    icon: "🐘",
-    color: "#8892BF",
-    colorDark: "#4F5B93",
-    example: `<?php
-$nama = "Programmer Web";
-$tahun = 2026;
-
-echo "Halo, " . $nama . "!\n";
-echo "Selamat datang di era PHP " . $tahun;
-?>`,
-    bonusTitle: "TUGAS BEBAS PHP",
-    bonusInstruction:
-      "Buatlah skrip PHP bebas! Gunakan tag <?php, variabel $, perintah echo, dan logika percabangan if atau perulangan foreach yang sudah kamu pelajari.",
-    bonusPlaceholder: `<?php
-$nama = "Programmer PHP";
-$skor = 90;
-
-echo "Nama: " . $nama . "\n";
-echo "Skor Ujian: " . $skor . "\n";
-
-if ($skor >= 75) {
-    echo "Status: LULUS DENGAN BAIK!\n";
-}
-?>`,
-    bonusMinLength: 15,
   },
 
   typescript: {
     abbreviation: "Typed JavaScript at Any Scale",
     tagline: "JavaScript Modern dengan Sistem Tipe Data Statis",
+    fileName: "main.ts",
+    typeLabel: "Statically Typed Superset of JS",
+    ecosystemLabel: "Dikembangkan oleh Microsoft",
     description:
-      "TypeScript adalah bahasa pemrograman open-source yang dikembangkan oleh Microsoft. TypeScript merupakan superset ketat dari JavaScript yang menambahkan pengetikan statis (static typing). Dengan TypeScript, kesalahan penulisan kode atau bug tipe data dapat terdeteksi sejak awal sebelum kode dijalankan di browser!",
+      "TypeScript menambahkan sistem tipe statis di atas JavaScript. Kesalahan tipe data seperti salah memasukkan angka ke variabel teks dapat terdeteksi lebih awal sebelum kode dijalankan.",
     kepanjangan: [
-      { huruf: "T", kata: "Type", arti: "Menyediakan sistem tipe data statis yang kuat dan aman" },
-      { huruf: "S", kata: "SuperSet", arti: "Semua kode JavaScript valid adalah kode TypeScript yang sah" },
+      { huruf: "T", kata: "Type", arti: "Menyediakan pemeriksaan tipe data statis saat kompilasi" },
+      { huruf: "S", kata: "Script", arti: "Superset dari JavaScript yang dikompilasi menjadi JS standar" },
     ],
     facts: [
-      "🔷 Dikembangkan dan didukung penuh secara resmi oleh Microsoft sejak 2012",
-      "🛡️ Mampu mendeteksi dan mencegah lebih dari 15% bug umum JS saat coding",
-      "🚀 Menjadi standar wajib di Google, Netflix, Airbnb, Microsoft, dan Uber",
-      "🔄 Selalu mendukung fitur-fitur tercanggih ECMAScript generasi terbaru",
-      "📦 Framework papan atas seperti Next.js, React, Angular, dan Vue mengandalkannya",
+      "Dikembangkan oleh Microsoft dan dirilis pertama kali pada tahun 2012.",
+      "Semua kode JavaScript yang valid juga merupakan kode TypeScript yang valid.",
+      "Menjadi standar utama pada framework modern seperti React, Next.js, dan Angular.",
+      "Membantu editor kode memberikan autocomplete dan dokumentasi yang sangat akurat.",
     ],
     whatYouLearn: [
-      "Mendeklarasikan tipe primitif: string, number, dan boolean",
-      "Membatasi tipe elemen dalam array dengan Type[]",
-      "Menentukan tipe parameter dan nilai return fungsi",
-      "Membuat kontrak bentuk objek yang ketat dengan interface",
-      "Membatasi ragam nilai yang diizinkan dengan Union Types & type alias",
-      "Menandai properti opsional menggunakan tanda tanya (?)",
-      "Membangun fungsi fleksibel dan aman dengan Generics (<T>)",
-      "Mengelompokkan daftar konstanta menggunakan fitur enum",
+      "Anotasi tipe primitif: string, number, boolean",
+      "Array bertipe dengan sintaks Type[]",
+      "Tipe parameter dan return value pada fungsi",
+      "Mendefinisikan bentuk objek dengan interface",
+      "Union types dan type alias",
+      "Properti opsional menggunakan tanda tanya (?)",
+      "Fungsi fleksibel dengan Generics (<T>)",
+      "Mengelompokkan konstanta menggunakan enum",
     ],
-    icon: "TS",
-    color: "#3178C6",
-    colorDark: "#235a97",
+    color: "#2563EB",
     example: `interface Siswa {
   nama: string;
   nilai: number;
 }
 
-let murid: Siswa = {
+const murid: Siswa = {
   nama: "Budi",
   nilai: 95,
 };
 
-console.log(murid.nama + " mendapatkan nilai: " + murid.nilai);`,
-    bonusTitle: "TUGAS BEBAS TYPESCRIPT",
+console.log(murid.nama + " meraih nilai " + murid.nilai);`,
+    bonusTitle: "Tugas Bebas TypeScript",
     bonusInstruction:
-      "Buatlah program TypeScript bebas! Gunakan penentuan tipe eksplisit, interface objek, atau fungsi dengan parameter bertipe.",
+      "Buat program TypeScript bebas dengan anotasi tipe variabel, interface objek, atau fungsi bertipe.",
     bonusPlaceholder: `interface Player {
   username: string;
   score: number;
-  isPro: boolean;
 }
 
 const player: Player = {
-  username: "PixelCoder",
-  score: 100,
-  isPro: true,
+  username: "Nadia",
+  score: 120,
 };
 
-console.log("Player: " + player.username);
-console.log("Score: " + player.score);
-if (player.isPro) {
-  console.log("Status: Pro Gamer!");
+console.log("Player:", player.username, player.score);`,
+  },
+
+  python: {
+    abbreviation: "Python Programming Language",
+    tagline: "Bahasa Pemrograman yang Bersih, Ringkas & Serbaguna",
+    fileName: "main.py",
+    typeLabel: "High-Level General Purpose",
+    ecosystemLabel: "Python Software Foundation",
+    description:
+      "Python dirancang agar mudah dibaca seperti bahasa manusia. Bahasa ini menjadi pilihan utama untuk pemula, otomasi tugas, analisis data, pengembangan backend, hingga kecerdasan buatan (AI).",
+    kepanjangan: [
+      { huruf: "P", kata: "Readable", arti: "Sintaks bersih dengan indentasi rapi tanpa kurung kurawal" },
+      { huruf: "Y", kata: "Versatile", arti: "Dipakai dari web, skrip otomasi, hingga AI & data science" },
+    ],
+    catatan: "Python menggunakan indentasi (spasi) untuk menandai blok kode, bukan tanda { }.",
+    facts: [
+      "Diciptakan oleh Guido van Rossum dan dirilis pertama kali pada tahun 1991.",
+      "Bahasa paling populer di bidang Machine Learning, AI, dan Data Science.",
+      "Digunakan secara luas oleh NASA, Google, Spotify, dan Instagram.",
+      "Namanya terinspirasi dari grup komedi Inggris Monty Python, bukan ular piton.",
+    ],
+    whatYouLearn: [
+      "Mencetak teks dan angka dengan print()",
+      "Membuat variabel dinamis tanpa kata kunci deklarasi",
+      "Melakukan operasi matematika dasar",
+      "Logika kondisi menggunakan if / else",
+      "Menyimpan daftar data dengan list []",
+      "Perulangan for dengan range()",
+      "Membuat fungsi dengan kata kunci def",
+      "Format teks modern menggunakan f-string",
+    ],
+    color: "#059669",
+    example: `nama = "Programmer Muda"
+tahun = 2026
+
+print(f"Halo, {nama}!")
+print("Tahun belajar:", tahun)
+
+if tahun >= 2026:
+    print("Siap berlatih logika Python!")`,
+    bonusTitle: "Tugas Bebas Python",
+    bonusInstruction:
+      "Tulis program Python bebas menggunakan variabel, perulangan for, fungsi def, kondisi if, dan print().",
+    bonusPlaceholder: `nama = "Budi"
+nilai = [80, 90, 85]
+
+for n in nilai:
+    print(f"{nama} mendapat nilai {n}")`,
+  },
+
+  php: {
+    abbreviation: "PHP: Hypertext Preprocessor",
+    tagline: "Bahasa Server-Side Andalan untuk Pengembangan Web",
+    fileName: "index.php",
+    typeLabel: "Server-Side Scripting Language",
+    ecosystemLabel: "The PHP Group // Web Backend",
+    description:
+      "PHP adalah bahasa pemrograman sisi server yang dirancang khusus untuk web. Skrip PHP berjalan di server untuk memproses formulir, berinteraksi dengan database, dan menghasilkan halaman HTML dinamis.",
+    kepanjangan: [
+      { huruf: "P", kata: "PHP", arti: "Singkatan rekursif dari PHP: Hypertext Preprocessor" },
+      { huruf: "H", kata: "Hypertext", arti: "Menghasilkan dokumen HTML dinamis untuk browser" },
+      { huruf: "P", kata: "Preprocessor", arti: "Diproses di server sebelum hasilnya dikirim ke pengguna" },
+    ],
+    facts: [
+      "Diciptakan oleh Rasmus Lerdorf pada tahun 1994.",
+      "Menggerakkan lebih dari 75% situs web yang menggunakan bahasa server-side, termasuk WordPress dan Wikipedia.",
+      "Versi PHP 8 modern menawarkan peningkatan performa signifikan dengan compiler JIT.",
+      "Setiap nama variabel di PHP wajib diawali simbol dollar ($).",
+    ],
+    whatYouLearn: [
+      "Menampilkan output dengan echo dan print",
+      "Membuka skrip dengan tag <?php ... ?>",
+      "Mendeklarasikan variabel dengan awalan $",
+      "Operasi aritmatika dasar",
+      "Menggabungkan teks dengan operator titik (.)",
+      "Percabangan logika dengan if",
+      "Menyimpan data dalam array []",
+      "Membaca isi array dengan foreach",
+      "Membuat fungsi dengan kata kunci function",
+    ],
+    color: "#4F46E5",
+    example: `<?php
+$nama = "Programmer Web";
+$tahun = 2026;
+
+echo "Halo, " . $nama . "!\n";
+echo "Selamat belajar PHP di tahun " . $tahun;
+?>`,
+    bonusTitle: "Tugas Bebas PHP",
+    bonusInstruction:
+      "Tulis skrip PHP bebas dengan variabel $, echo, kondisi if, array, atau perulangan foreach.",
+    bonusPlaceholder: `<?php
+$nama = "Siti";
+$skor = 92;
+
+echo "Nama: " . $nama . "\n";
+if ($skor >= 75) {
+    echo "Status: Lulus!";
+}
+?>`,
+  },
+
+  java: {
+    abbreviation: "Java Programming Language",
+    tagline: "Bahasa Berorientasi Objek untuk Aplikasi Skala Besar",
+    fileName: "Main.java",
+    typeLabel: "Object-Oriented & Strongly Typed",
+    ecosystemLabel: "JVM (Java Virtual Machine)",
+    description:
+      "Java adalah bahasa pemrograman berorientasi objek yang terkenal dengan prinsip 'Write Once, Run Anywhere'. Kode Java berjalan di atas Java Virtual Machine (JVM) dan banyak dipakai untuk backend enterprise, perbankan, serta pengembangan Android.",
+    kepanjangan: [
+      { huruf: "J", kata: "JVM", arti: "Kode berjalan konsisten di berbagai sistem operasi melalui mesin virtual" },
+      { huruf: "O", kata: "OOP", arti: "Berbasis class dan object yang terstruktur rapi" },
+    ],
+    facts: [
+      "Dikembangkan oleh James Gosling di Sun Microsystems dan dirilis pada tahun 1995.",
+      "Menjadi fondasi ekosistem Android serta sistem backend berskala besar di perbankan dan e-commerce.",
+      "Memiliki sistem tipe statis yang ketat sehingga bug mudah dideteksi sejak awal.",
+      "Setiap pernyataan di Java harus diakhiri tanda titik koma (;).",
+    ],
+    whatYouLearn: [
+      "Mencetak output dengan System.out.println()",
+      "Mendeklarasikan variabel int, String, dan boolean",
+      "Melakukan operasi aritmatika dasar",
+      "Percabangan logika dengan if",
+      "Menyimpan data terurut dengan array bertipe",
+      "Perulangan terstruktur dengan for loop",
+      "Membuat method static",
+      "Memahami struktur dasar class",
+    ],
+    color: "#EA580C",
+    example: `public class Main {
+  public static void main(String[] args) {
+    String nama = "Budi";
+    int nilai = 90;
+    System.out.println("Halo " + nama);
+    if (nilai >= 75) {
+      System.out.println("Status: Lulus");
+    }
+  }
 }`,
-    bonusMinLength: 15,
+    bonusTitle: "Tugas Bebas Java",
+    bonusInstruction:
+      "Buat program Java bebas menggunakan System.out.println(), variabel int/String, percabangan if, atau perulangan for.",
+    bonusPlaceholder: `String siswa = "Andi";
+int[] nilai = {80, 90, 95};
+
+for (int i = 0; i < nilai.length; i++) {
+  System.out.println(siswa + " #" + (i + 1) + ": " + nilai[i]);
+}`,
+  },
+
+  cpp: {
+    abbreviation: "C++ Programming Language",
+    tagline: "Bahasa Performa Tinggi untuk Sistem, Game, dan Algoritma",
+    fileName: "main.cpp",
+    typeLabel: "Compiled Systems Language",
+    ecosystemLabel: "ISO C++ Standard",
+    description:
+      "C++ adalah bahasa pemrograman kompilasi yang memberi kendali penuh atas memori dan performa eksekusi. C++ banyak dipakai untuk membangun sistem operasi, game engine, perangkat tertanam, serta pemrograman kompetitif.",
+    kepanjangan: [
+      { huruf: "C", kata: "C Language", arti: "Dibangun di atas efisiensi bahasa C klasik" },
+      { huruf: "++", kata: "Increment", arti: "Menambahkan fitur modern seperti class, struct, dan STL" },
+    ],
+    facts: [
+      "Diciptakan oleh Bjarne Stroustrup pada tahun 1979 sebagai pengembangan dari bahasa C.",
+      "Digunakan untuk membangun Unreal Engine, browser Chromium, dan komponen inti sistem operasi.",
+      "Menjadi salah satu bahasa paling populer di olimpiade sains komputer dan competitive programming.",
+      "Standar input/output konsol menggunakan stream cin dan cout dari pustaka <iostream>.",
+    ],
+    whatYouLearn: [
+      "Menampilkan output dengan cout dan endl",
+      "Mendeklarasikan tipe int dan string",
+      "Melakukan operasi matematika dasar",
+      "Membuat kondisi percabangan if",
+      "Menyusun array berukuran tetap",
+      "Menjalankan perulangan for loop",
+      "Membuat fungsi dengan tipe kembalian",
+      "Mengelompokkan data dengan struct",
+    ],
+    color: "#0369A1",
+    example: `#include <iostream>
+using namespace std;
+
+int main() {
+  string nama = "Budi";
+  int skor = 95;
+  cout << "Halo " << nama << endl;
+  cout << "Skor: " << skor << endl;
+  return 0;
+}`,
+    bonusTitle: "Tugas Bebas C++",
+    bonusInstruction:
+      "Tulis program C++ bebas dengan cout, variabel, perulangan for, fungsi, atau struct.",
+    bonusPlaceholder: `int total = 0;
+for (int i = 1; i <= 5; i++) {
+  total = total + i;
+  cout << "Langkah " << i << ": " << total << endl;
+}`,
+  },
+
+  go: {
+    abbreviation: "Go (Golang)",
+    tagline: "Bahasa Modern yang Ringkas, Cepat, dan Andal untuk Cloud",
+    fileName: "main.go",
+    typeLabel: "Compiled Concurrent Language",
+    ecosystemLabel: "Dikembangkan oleh Google",
+    description:
+      "Go (sering disebut Golang) dirancang oleh Google untuk memadukan kecepatan bahasa kompilasi seperti C dengan kemudahan membaca seperti Python. Go sangat populer untuk membangun API backend, microservices, dan infrastruktur cloud.",
+    kepanjangan: [
+      { huruf: "G", kata: "Google", arti: "Diciptakan oleh Robert Griesemer, Rob Pike, dan Ken Thompson di Google" },
+      { huruf: "O", kata: "Open Source", arti: "Gratis, memiliki tooling lengkap, dan kompilasi sangat cepat" },
+    ],
+    facts: [
+      "Dirilis secara publik oleh Google pada tahun 2009.",
+      "Teknologi infrastruktur cloud besar seperti Docker dan Kubernetes ditulis menggunakan Go.",
+      "Memiliki gaya penulisan seragam tanpa tanda titik koma (;) dan kondisi if tanpa tanda kurung ().",
+      "Operator := mempermudah deklarasi variabel secara singkat dan tetap type-safe.",
+    ],
+    whatYouLearn: [
+      "Mencetak output dengan fmt.Println()",
+      "Deklarasi singkat variabel menggunakan :=",
+      "Deklarasi eksplisit menggunakan var",
+      "Operasi aritmatika dan kondisi if",
+      "Menggunakan slice dinamis []string",
+      "Perulangan for klasik dan range",
+      "Membuat fungsi dengan parameter bertipe",
+      "Memodelkan data dengan struct",
+    ],
+    color: "#0891B2",
+    example: `package main
+import "fmt"
+
+func main() {
+  nama := "Budi"
+  nilai := 90
+  fmt.Println("Halo,", nama)
+  if nilai >= 80 {
+    fmt.Println("Hasil: Lulus")
+  }
+}`,
+    bonusTitle: "Tugas Bebas Go",
+    bonusInstruction:
+      "Tulis kode Go bebas menggunakan :=, fmt.Println(), slice, perulangan for/range, atau fungsi.",
+    bonusPlaceholder: `buah := []string{"Apel", "Mangga", "Jeruk"}
+for _, item := range buah {
+  fmt.Println("Buah:", item)
+}`,
+  },
+
+  sql: {
+    abbreviation: "Structured Query Language",
+    tagline: "Bahasa Standar untuk Mengelola dan Menganalisis Basis Data",
+    fileName: "query.sql",
+    typeLabel: "Declarative Query Language",
+    ecosystemLabel: "RDBMS (PostgreSQL, MySQL, SQLite)",
+    description:
+      "SQL adalah bahasa standar untuk berbicara dengan basis data relasional. Dengan SQL, kamu dapat mengambil data spesifik, menyaring baris, mengurutkan laporan, menghitung statistik agregat, serta memperbarui rekaman tabel.",
+    kepanjangan: [
+      { huruf: "S", kata: "Structured", arti: "Mengelola data yang tersusun rapi dalam baris dan kolom tabel" },
+      { huruf: "Q", kata: "Query", arti: "Mengajukan permintaan data secara deklaratif (apa yang dicari)" },
+      { huruf: "L", kata: "Language", arti: "Bahasa standar di hampir semua sistem database modern" },
+    ],
+    facts: [
+      "Dikembangkan pertama kali di IBM pada awal tahun 1970-an berdasarkan model relasional Edgar F. Codd.",
+      "Digunakan di balik layar hampir semua aplikasi mobile, web e-commerce, perbankan, dan analitik bisnis.",
+      "Kamu cukup menyatakan data apa yang diinginkan, dan mesin database yang menentukan cara tercepat mengambilnya.",
+      "Dalam sandbox ini sudah tersedia tabel 'siswa' dan 'produk' yang siap langsung di-query.",
+    ],
+    whatYouLearn: [
+      "Membaca semua data dengan SELECT *",
+      "Memilih kolom spesifik dari tabel",
+      "Menyaring data numerik dan teks dengan WHERE",
+      "Mengurutkan hasil dengan ORDER BY ASC/DESC",
+      "Membatasi jumlah baris dengan LIMIT",
+      "Menghitung jumlah data dengan COUNT(*)",
+      "Mengelompokkan dan merata-rata dengan GROUP BY",
+      "Menambah dan memperbarui baris dengan INSERT & UPDATE",
+    ],
+    color: "#7C3AED",
+    example: `SELECT nama, kelas, nilai
+FROM siswa
+WHERE nilai >= 80
+ORDER BY nilai DESC;`,
+    bonusTitle: "Tugas Bebas SQL",
+    bonusInstruction:
+      "Eksplorasi tabel 'siswa' dan 'produk' yang sudah tersedia! Coba kombinasikan SELECT, WHERE, ORDER BY, LIMIT, AVG/COUNT, atau UPDATE.",
+    bonusPlaceholder: `SELECT nama, harga, stok
+FROM produk
+WHERE harga >= 150000
+ORDER BY harga DESC;`,
   },
 };

@@ -1,6 +1,14 @@
 import React from 'react';
+import { Check, X, ArrowRight, RotateCcw } from 'lucide-react';
 
-function ResultModal({ result, onNext, onRetry, onClose, isLastLesson }) {
+function ResultModal({
+  result,
+  reason,
+  onNext,
+  onRetry,
+  onClose,
+  isLastLesson,
+}) {
   if (!result) return null;
 
   const isCorrect = result === 'correct';
@@ -8,54 +16,46 @@ function ResultModal({ result, onNext, onRetry, onClose, isLastLesson }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className={`modal-box ${isCorrect ? 'success' : 'error'}`}
+        className="modal-box"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
-        <span className="modal-icon">
-          {isCorrect ? '✓' : '✕'}
-        </span>
+        <div className={`modal-icon-circle ${isCorrect ? 'success' : 'error'}`}>
+          {isCorrect ? <Check size={24} /> : <X size={24} />}
+        </div>
 
-        <h2
-          className="modal-title"
-          style={{ color: isCorrect ? 'var(--color-green)' : 'var(--color-red)' }}
-        >
-          {isCorrect ? 'QUEST CLEARED!' : 'TRY AGAIN!'}
+        <h2 className="modal-title">
+          {isCorrect ? 'Misi Berhasil' : 'Belum Tepat'}
         </h2>
 
         <p className="modal-subtitle">
           {isCorrect
-            ? 'Kamu berhasil memahami materi ini.'
-            : 'Coba periksa kembali kode kamu.\nPastikan penulisan sudah benar.'}
+            ? 'Kode kamu berjalan dengan benar dan memenuhi syarat misi ini.'
+            : reason || 'Periksa kembali sintaks atau isi kodemu lalu jalankan ulang.'}
         </p>
-
-        {isCorrect && (
-          <p
-            className="modal-reality-text"
-            style={{ color: 'var(--color-blue)' }}
-          >
-            ✦ Your code has become reality. ✦
-          </p>
-        )}
 
         <div className="modal-actions">
           {isCorrect ? (
             <>
               {!isLastLesson && (
-                <button className="btn btn-success" onClick={onNext}>
-                  NEXT QUEST →
+                <button type="button" className="btn btn-success" onClick={onNext}>
+                  <span>Misi Berikutnya</span>
+                  <ArrowRight size={15} />
                 </button>
               )}
-              <button className="btn btn-ghost" onClick={onClose}>
-                {isLastLesson ? 'FINISH ✓' : 'STAY HERE'}
+              <button type="button" className="btn btn-ghost" onClick={onClose}>
+                {isLastLesson ? 'Selesai' : 'Tetap di Sini'}
               </button>
             </>
           ) : (
             <>
-              <button className="btn btn-danger" onClick={onRetry}>
-                TRY AGAIN
+              <button type="button" className="btn btn-primary" onClick={onClose}>
+                Perbaiki Kode
               </button>
-              <button className="btn btn-ghost" onClick={onClose}>
-                CLOSE
+              <button type="button" className="btn btn-ghost" onClick={onRetry}>
+                <RotateCcw size={14} />
+                <span>Reset Editor</span>
               </button>
             </>
           )}
